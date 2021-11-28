@@ -28,4 +28,4 @@ void mat_to_img_file(const std::string &file_path, cv::Mat image);
  * @brief Saves an image from a matrix into a specified file.
  */
 void mat_to_img_file(const std::string &file_path,
-		float *buffer, int height, int width);
+					 float *buffer, int height, int width);

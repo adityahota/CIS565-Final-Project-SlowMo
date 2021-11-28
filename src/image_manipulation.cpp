@@ -26,7 +26,7 @@ void mat_to_img_file(const std::string &file_path, cv::Mat image)
 }
 
 void mat_to_img_file(const std::string &file_path,
-		float *data, int height, int width)
+					 float *data, int height, int width)
 {
 	cv::Mat image = cv::Mat(height, width, CV_32FC3, data);
 	mat_to_img_file(file_path, image);
