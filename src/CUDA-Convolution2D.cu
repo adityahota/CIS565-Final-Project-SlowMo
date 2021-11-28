@@ -149,8 +149,8 @@ int main(void)
 
 	// Copy kernel template into host buffer
 	float host_kernel[3][3][3][3];
-	for (int kernel = 0; kernel < 1; ++kernel) {
-	    for (int channel = 0; channel < 1; ++channel) {
+	for (int kernel = 0; kernel < 3; ++kernel) {
+	    for (int channel = 0; channel < 3; ++channel) {
 	        for (int row = 0; row < 3; ++row) {
 	            for (int column = 0; column < 3; ++column) {
 	                host_kernel[kernel][channel][row][column] = kernel_template[row][column];
@@ -183,8 +183,6 @@ int main(void)
 	// Allocate space and copy data from output image to host
 	float *out_image = new float[image_bytes];
 	cudaMemcpy(out_image, dev_out_image, image_bytes, cudaMemcpyDeviceToHost);
-
-	std::cerr << "got here" << std::endl;
 
 	mat_to_img_file(file_name2, out_image, height, width);
 
