@@ -188,8 +188,6 @@ int main(void)
 	float *out_image = new float[image_bytes];
 	cudaMemcpy(out_image, dev_out_image, image_bytes, cudaMemcpyDeviceToHost);
 
-	std::cerr << "got here" << std::endl;
-
 	mat_to_img_file(file_name2, out_image, height, width);
 
 	delete[] out_image;
