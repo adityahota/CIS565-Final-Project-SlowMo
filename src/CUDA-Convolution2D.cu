@@ -31,7 +31,7 @@
 int main(void)
 {
 	std::string file_name1 = "/home/laurelin/cis565/CIS565-Final-Project-SlowMo/img/hawk.png";
-	std::string file_name2 = "/home/laurelin/cis565/CIS565-Final-Project-SlowMo/img/hawk.png";
+	std::string file_name2 = "/home/laurelin/cis565/CIS565-Final-Project-SlowMo/img/hawk_filtered.png";
 
 	// Load the image
 	cv::Mat in_image = img_file_to_mat(file_name1);
@@ -149,9 +149,9 @@ int main(void)
 
 	// Copy kernel template into host buffer
 	float host_kernel[3][3][3][3];
-	for (int kernel = 0; kernel < 1; ++kernel)
+	for (int kernel = 0; kernel < 3; ++kernel)
 	{
-		for (int channel = 0; channel < 1; ++channel)
+		for (int channel = 0; channel < 3; ++channel)
 		{
 			for (int row = 0; row < 3; ++row)
 			{
