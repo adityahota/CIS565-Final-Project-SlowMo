@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/local/include/opencv4"
+                "/usr/local/include/opencv4",
+                "/usr/local/cuda-11.4/targets/x86_64-linux/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",
