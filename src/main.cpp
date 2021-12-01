@@ -25,6 +25,8 @@ int main(int argc, char *argv[])
     // TODO: memcpys???
     auto cuFlavr = Flavr();
 
+    std::cout << "Done Loading Network" << std::endl;
+
     // TODO: load input video
     auto orig_frames = grab_vid_frames(in_file);
     // TODO: make output structure
@@ -41,6 +43,7 @@ int main(int argc, char *argv[])
         auto input_packet_start = &(orig_frames.data()[i]);
         auto guessed_frames = cuFlavr.runModel(input_packet_start);
         result_frames.insert(result_frames.end(), guessed_frames.begin(), guessed_frames.end());
+        //TODO progress bar
     }
 
     // TODO: Write output video to file
