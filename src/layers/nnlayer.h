@@ -21,4 +21,4 @@ public:
     // std::string getName() { return this->name; };
 };
 
-// inline NNLayer::~NNLayer() {}
+NNLayer::~NNLayer() {}

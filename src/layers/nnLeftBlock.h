@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+
 #include "nn3dconv.h"
 #include "nnGate.h"
 
@@ -11,3 +13,5 @@ private:
     NN3dConv orange;
     NNGate blue;
 };
+
+#endif

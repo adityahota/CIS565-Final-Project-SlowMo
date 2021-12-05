@@ -1,6 +1,8 @@
 #include "includes.h"
 #include "flavr.h"
 
+#if 0
+
 std::vector<VidFrame> grab_vid_frames(std::string f_name)
 {
     return std::vector<VidFrame>(); // TODO
@@ -51,3 +53,5 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+#endif

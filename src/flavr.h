@@ -1,4 +1,7 @@
 #pragma once
+
+#if 0
+
 #include "includes.h"
 #include "layers/nnLeftBlock.h"
 #include "layers/nnRightBlock.h"
@@ -22,3 +25,5 @@ private:
     NNRightBlock tConv64;
     NNPred predLayer;
 };
+
+#endif

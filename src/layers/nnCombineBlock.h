@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+
 #include "nnRightBlock.h"
 #include "nnLeftBlock.h"
 
@@ -12,3 +14,5 @@ private:
     NNLeftBlock l;
     NNLayer mid;
 };
+
+#endif
