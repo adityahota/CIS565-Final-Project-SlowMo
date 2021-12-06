@@ -13,7 +13,7 @@ protected:
 
 public:
     virtual ~NNLayer() = 0;
-    virtual void run() = 0;
+    virtual void run(cudnnHandle_t cudnn_handle) = 0;
 
     // virtual Matrix &forward(Matrix &A) = 0;
     // virtual Matrix &backprop(Matrix &dZ, float learning_rate) = 0;

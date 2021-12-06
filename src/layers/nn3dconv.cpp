@@ -35,17 +35,6 @@ NN3dConv::NN3dConv(int N_in, int C_in, int D_in, int H_in, int W_in,
                                           v_dim_in.data(),
                                           v_str_in.data()));
 
-    // Set output tensor descriptor
-    std::vector<int> v_dim_out = {getOutputN(), getOutputC(), getOutputD(), getOutputH(), getOutputW()};
-    std::vector<int> v_str_out = {getOutputC() * getOutputD() * getOutputH() * getOutputW(),
-                                  getOutputD() * getOutputH() * getOutputW(),
-                                  getOutputH() * getOutputW(), getOutputW(), 1};
-    checkCUDNN(cudnnSetTensorNdDescriptor(desc_out,
-                                          CUDNN_DATA_FLOAT,
-                                          v_dim_out.size(),
-                                          v_dim_out.data(),
-                                          v_str_out.data()));
-
     // Set convolution descriptor
     std::vector<int> conv_pad_shape = {pad_D, pad_H, pad_W};
     std::vector<int> conv_str_shape = {str_D, str_H, str_W};
@@ -65,33 +54,64 @@ NN3dConv::NN3dConv(int N_in, int C_in, int D_in, int H_in, int W_in,
                                           CUDNN_TENSOR_NCHW,
                                           kern_shape.size(),
                                           kern_shape.data()));
+
+    // Get output tensor dimensions
+    int dim_sizes[5];
+    checkCUDNN(cudnnGetConvolutionNdForwardOutputDim(desc_conv,
+                                                     desc_in,
+                                                     desc_kern,
+                                                     5,
+                                                     dim_sizes));
+    dim_N_out = dim_sizes[0];
+    dim_C_out = dim_sizes[1];
+    dim_D_out = dim_sizes[2];
+    dim_H_out = dim_sizes[3];
+    dim_W_out = dim_sizes[4];
+
+    // Set output tensor descriptor
+    std::vector<int> v_dim_out = {getOutputN(), getOutputC(), getOutputD(), getOutputH(), getOutputW()};
+    std::vector<int> v_str_out = {getOutputC() * getOutputD() * getOutputH() * getOutputW(),
+                                  getOutputD() * getOutputH() * getOutputW(),
+                                  getOutputH() * getOutputW(), getOutputW(), 1};
+    checkCUDNN(cudnnSetTensorNdDescriptor(desc_out,
+                                          CUDNN_DATA_FLOAT,
+                                          v_dim_out.size(),
+                                          v_dim_out.data(),
+                                          v_str_out.data()));
 }
 
 int NN3dConv::getOutputN()
 {
-    return dim_N_in;
+    // return dim_N_in;
+    return dim_N_out;
 }
 
 int NN3dConv::getOutputC()
 {
-    return kern_C_out;
+    // return kern_C_out;
+    return dim_C_out;
 }
 
 int NN3dConv::getOutputD()
 {
-    return dim_D_in;
+    // return dim_D_in;
+//    int top = dim_D_in + 2 * pad_D - dil_D * (kern_D - 1) - 1;
+//    return top / str_D + 1;
+    return dim_D_out;
 }
 
 int NN3dConv::getOutputH()
 {
-    int top = dim_H_in + 2 * pad_H - dil_H * (kern_H - 1) - 1;
-    return top / str_H + 1;
+//    int top = dim_H_in + 2 * pad_H - dil_H * (kern_H - 1) - 1;
+//    return top / str_H + 1;
+    return dim_H_out;
 }
 
 int NN3dConv::getOutputW()
 {
-    int top = dim_W_in + 2 * pad_W - dil_W * (kern_W - 1) - 1;
-    return top / str_W + 1;
+//    int top = dim_W_in + 2 * pad_W - dil_W * (kern_W - 1) - 1;
+//    return top / str_W + 1;
+    return dim_W_out;
 }
 
 int NN3dConv::getOutputSize()
@@ -99,8 +119,48 @@ int NN3dConv::getOutputSize()
     return getOutputN() * getOutputC() * getOutputD() * getOutputH() * getOutputW();
 }
 
-void NN3dConv::run()
+void NN3dConv::run(cudnnHandle_t cudnn_handle)
 {
+    // Initialize the algorithm
+    cudnnConvolutionFwdAlgoPerf_t algorithm_perf;
+    int returned_algorithms = 0;
+    checkCUDNN(cudnnGetConvolutionForwardAlgorithm_v7(cudnn_handle,
+                                                      desc_in,
+                                                      desc_kern,
+                                                      desc_conv,
+                                                      desc_out,
+                                                      1,
+                                                      &returned_algorithms,
+                                                      &algorithm_perf));
+    std::cerr << returned_algorithms << " algorithms returned. Using algo " << algorithm_perf.algo << std::endl;
+
+    // Allocate workspace size required for the convolution (in Bytes)
+    size_t workspace_bytes = 0;
+    checkCUDNN(cudnnGetConvolutionForwardWorkspaceSize(cudnn_handle,
+                                                       desc_in,
+                                                       desc_kern,
+                                                       desc_conv,
+                                                       desc_out,
+                                                       algorithm_perf.algo,
+                                                       &workspace_bytes));
+    std::cerr << "Workspace size: " << workspace_bytes / 1048576.0 << "MB" << std::endl;
+    cudaMalloc(&cudnn_workspace, workspace_bytes);
+
+    // Run the convolution
+    const float alpha = 1.f, beta = 1.f;
+    checkCUDNN(cudnnConvolutionForward(cudnn_handle,
+                                       &alpha,
+                                       desc_in,
+                                       data_input,
+                                       desc_kern,
+                                       data_filter,
+                                       desc_conv,
+                                       algorithm_perf.algo,
+                                       cudnn_workspace,
+                                       workspace_bytes,
+                                       &beta,
+                                       desc_out,
+                                       data_output));
 
 }
 

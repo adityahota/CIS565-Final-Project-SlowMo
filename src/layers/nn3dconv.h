@@ -7,6 +7,7 @@ class NN3dConv : public NNLayer
 {
 private:
     int dim_N_in, dim_C_in, dim_D_in, dim_H_in, dim_W_in;
+    int dim_N_out, dim_C_out, dim_D_out, dim_H_out, dim_W_out;
     int kern_C_out, kern_C_in, kern_D, kern_H, kern_W;
     int pad_D, pad_H, pad_W;
     int str_D, str_H, str_W;
@@ -32,7 +33,7 @@ public:
              int d_D, int d_H, int d_W);
     ~NN3dConv();
 
-    void run();
+    void run(cudnnHandle_t cudnn_handle);
 
     void setData(void *input, void *weights, void *output, void *cudnn_workspace);
 
