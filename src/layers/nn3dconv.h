@@ -12,9 +12,9 @@ private:
     int str_D, str_H, str_W;
     int dil_D, dil_H, dil_W;
 
-    void *input_data;
-    void *weight_data;
-    void *output_data;
+    void *data_input;
+    void *data_filter;
+    void *data_output;
     void *cudnn_workspace;
 
     cudnnTensorDescriptor_t desc_in;
