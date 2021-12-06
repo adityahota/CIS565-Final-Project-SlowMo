@@ -12,7 +12,7 @@ protected:
     // std::string name;
 
 public:
-    virtual ~NNLayer() = 0;
+    // virtual ~NNLayer() = 0;
     virtual void run(cudnnHandle_t cudnn_handle) = 0;
 
     // virtual Matrix &forward(Matrix &A) = 0;
@@ -21,4 +21,8 @@ public:
     // std::string getName() { return this->name; };
 };
 
-NNLayer::~NNLayer() {}
+//NNLayer::~NNLayer()
+//{
+//    std::cout << "Destroyed NNLayer" << std::endl;
+//    return;
+//}

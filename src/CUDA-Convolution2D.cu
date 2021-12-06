@@ -8,8 +8,10 @@
  ============================================================================
  */
 
-#include "image_manipulation.h"
 #include "includes.h"
+#include "image_manipulation.h"
+
+#include "layers/nn3dconv.h"
 
 #include <cudnn.h>
 #include <iostream>
@@ -19,11 +21,14 @@
 
 int main(void)
 {
-	std::string file_name1 = "/home/laurelin/cis565/CIS565-Final-Project-SlowMo/img/hawk.png";
-	std::string file_name2 = "/home/laurelin/cis565/CIS565-Final-Project-SlowMo/img/hawk_filtered.png";
+	std::string file_name1 = "/home/aditya/Documents/Development/cis565/Final-Project/CUDA-Convolution2D/img/apple.png";
+	std::string file_name2 = "/home/aditya/Documents/Development/cis565/Final-Project/CUDA-Convolution2D/img/apple_out.png";
 
 	// Load the image
-	cv::Mat in_image = img_file_to_mat(file_name1);
+	cv::Mat host_image_in = img_file_to_mat(file_name1);
+	cv::Size s = host_image_in.size();
+	int c = host_image_in.channels();
+	std::cout << "size: " << s << " chan: " << c << std::endl;
 
 	// Set the CUDA GPU device
 	cudaSetDevice(0);
@@ -32,165 +37,166 @@ int main(void)
 	cudnnHandle_t cudnn_handle;
 	cudnnCreate(&cudnn_handle);
 
-	// Create input descriptor
-	cudnnTensorDescriptor_t input_descriptor;
-	checkCUDNN(cudnnCreateTensorDescriptor(&input_descriptor));
-	checkCUDNN(cudnnSetTensor4dDescriptor(input_descriptor,
-										  /*format=*/CUDNN_TENSOR_NHWC,
-										  /*dataType=*/CUDNN_DATA_FLOAT,
-										  /*batch_size=*/1,
-										  /*channels=*/3,
-										  /*image_height=*/in_image.rows,
-										  /*image_width=*/in_image.cols));
+	// Set up tensor and filter dimensions
+	int dim_N_in = 1, dim_C_in = 3, dim_D_in = 1, dim_H_in = 512, dim_W_in = 512;
+	int kern_C_out = 3, kern_C_in = 3, kern_D = 1, kern_H = 1, kern_W = 1;
 
-	// Create descriptor for convolution filter (kernel)
-	cudnnFilterDescriptor_t kernel_descriptor;
-	checkCUDNN(cudnnCreateFilterDescriptor(&kernel_descriptor));
-	checkCUDNN(cudnnSetFilter4dDescriptor(kernel_descriptor,
-										  /*dataType=*/CUDNN_DATA_FLOAT,
-										  /*format=*/CUDNN_TENSOR_NCHW,
-										  /*out_channels=*/3,
-										  /*in_channels=*/3,
-										  /*kernel_height=*/3,
-										  /*kernel_width=*/3));
+	// Create NN3dConv object for convolution
+	NN3dConv *conv1 = new NN3dConv(dim_N_in, dim_C_in, dim_D_in, dim_H_in, dim_W_in,
+	                               kern_C_out, kern_C_in, kern_D, kern_H, kern_W,
+	                               0, 0, 0,
+	                               1, 1, 1,
+	                               1, 1, 1);
+	std::cerr << "N: " << conv1->getOutputN() << " C: " << conv1->getOutputC() << " D: " << conv1->getOutputD()
+              << " H: " << conv1->getOutputH() << " W: " << conv1->getOutputW() << std::endl;
 
-	// Create descriptor for convolution operation
-	cudnnConvolutionDescriptor_t convolution_descriptor;
-	checkCUDNN(cudnnCreateConvolutionDescriptor(&convolution_descriptor));
-	checkCUDNN(cudnnSetConvolution2dDescriptor(convolution_descriptor,
-											   /*pad_height=*/1,
-											   /*pad_width=*/1,
-											   /*vertical_stride=*/1,
-											   /*horizontal_stride=*/1,
-											   /*dilation_height=*/1,
-											   /*dilation_width=*/1,
-											   /*mode=*/CUDNN_CROSS_CORRELATION,
-											   /*computeType=*/CUDNN_DATA_FLOAT));
+    // Allocate space and copy data from input image to GPU
+	// TODO: use loop so that tensor dimensions can be used later
+    int bytes_image_in = dim_N_in * dim_C_in * dim_D_in * dim_H_in * dim_W_in * sizeof(float);
+    float *dev_image_in = nullptr;
+    cudaMalloc(&dev_image_in, bytes_image_in);
+    cudaMemcpy(dev_image_in, host_image_in.ptr<float>(0), bytes_image_in, cudaMemcpyHostToDevice);
 
-	// Compute output dimensions and number of channels
-	int batch_size = 0, channels = 0, height = 0, width = 0;
-	checkCUDNN(cudnnGetConvolution2dForwardOutputDim(convolution_descriptor,
-													 input_descriptor,
-													 kernel_descriptor,
-													 &batch_size,
-													 &channels,
-													 &height,
-													 &width));
-	std::cerr << "Output Image: " << height << " x " << width << " x " << channels
-			  << std::endl;
+    // Allocate space for filter and initialize on host
+    // TODO: use different library to allow for dynamic instantiation
+    int i = 0;
+    float host_filter[3][3][1][1][1];
+    for (int c_out = 0; c_out < kern_C_out; c_out++)
+    {
+        for (int c_in = 0; c_in < kern_C_in; c_in++)
+        {
+            for (int d = 0; d < kern_D; d++)
+            {
+                for (int h = 0; h < kern_H; h++)
+                {
+                    for (int w = 0; w < kern_W; w++)
+                    {
+                        host_filter[c_out][c_in][d][h][w] = 0.25f;
+                    }
+                }
+            }
+        }
+    }
 
-	// Create descriptor for the output (based on output image statistics)
-	cudnnTensorDescriptor_t output_descriptor;
-	checkCUDNN(cudnnCreateTensorDescriptor(&output_descriptor));
-	checkCUDNN(cudnnSetTensor4dDescriptor(output_descriptor,
-										  /*format=*/CUDNN_TENSOR_NHWC,
-										  /*dataType=*/CUDNN_DATA_FLOAT,
-										  /*batch_size=*/1,
-										  /*channels=*/3,
-										  /*image_height=*/in_image.rows,
-										  /*image_width=*/in_image.cols));
+    // Allocate space and copy data from host filter to GPU
+    int bytes_kernel = kern_C_out * kern_C_in * kern_D * kern_H * kern_W * sizeof(float);
+    float *dev_kernel = nullptr;
+    cudaMalloc(&dev_kernel, bytes_kernel);
+    cudaMemcpy(dev_kernel, host_filter, bytes_kernel, cudaMemcpyHostToDevice);
 
-	// Get the algorithm that cuDNN will use for the convolution
-	cudnnConvolutionFwdAlgoPerf_t algorithm_perf;
-	int returned_algorithms = 0;
-	checkCUDNN(cudnnGetConvolutionForwardAlgorithm_v7(cudnn_handle,
-													  input_descriptor,
-													  kernel_descriptor,
-													  convolution_descriptor,
-													  output_descriptor,
-													  1,
-													  &returned_algorithms,
-													  &algorithm_perf));
-	std::cerr << returned_algorithms << " algorithms returned" << std::endl;
-	std::cerr << "Using algorithm " << algorithm_perf.algo << std::endl;
+    // Allocate space for output image on GPU
+    int bytes_image_out = conv1->getOutputN() * conv1->getOutputC() * conv1->getOutputD() * conv1->getOutputH() * conv1->getOutputW() * sizeof(float);
+    float *dev_image_out = nullptr;
+    cudaMalloc(&dev_image_out, bytes_image_out);
+    cudaMemset(dev_image_out, 0, bytes_image_out);
 
-	// Get the workspace size required for the convolution (in Bytes)
-	size_t workspace_bytes = 0;
-	checkCUDNN(cudnnGetConvolutionForwardWorkspaceSize(cudnn_handle,
-													   input_descriptor,
-													   kernel_descriptor,
-													   convolution_descriptor,
-													   output_descriptor,
-													   algorithm_perf.algo,
-													   &workspace_bytes));
-	std::cerr << "Workspace size: " << workspace_bytes / 1048576.0 << "MB" << std::endl;
+    // Set data pointers for convolution
+    conv1->setData(dev_image_in, dev_kernel, dev_image_out);
 
-	// Allocate required space for workspace
-	void *dev_workspace = nullptr;
-	cudaMalloc(&dev_workspace, workspace_bytes);
-	int image_bytes = batch_size * channels * height * width * sizeof(float);
+    // Run the convolution
+    conv1->run(cudnn_handle);
 
-	// Allocate space and copy data from input image to GPU
-	float *dev_in_image = nullptr;
-	cudaMalloc(&dev_in_image, image_bytes);
-	cudaMemcpy(dev_in_image, in_image.ptr<float>(0), image_bytes, cudaMemcpyHostToDevice);
+    // Allocate space and copy data from image output on GPU to host
+    float *host_image_out = new float[bytes_image_out];
+    cudaMemcpy(host_image_out, dev_image_out, bytes_image_out, cudaMemcpyDeviceToHost);
+    float *rearranged = new float[bytes_image_out];
 
-	// Allocate space for output image on GPU
-	float *dev_out_image = nullptr;
-	cudaMalloc(&dev_out_image, image_bytes);
-	cudaMemset(dev_out_image, 0, image_bytes);
+    for (int h = 0; h < 512; h++)
+    {
+        for (int w = 0; w < 512; w++)
+        {
+            for (int c = 0; c < 3; c++)
+            {
+                // rearranged[c][h][w] = host_image_out[h][w][c];
+                rearranged[c * 512 * 512 + h * 512 + w] = host_image_out[h * 512 * 3 + w * 3 + c];
+            }
+        }
+    }
 
-	// Specify the kernel template
-	const float kernel_template[3][3] = {
-		{1, 1, 1},
-		{1, -8, 1},
-		{1, 1, 1}};
+    for (int i = 0; i < 3; i++)
+    {
+        std::cout << host_image_in.ptr<float>(0)[i] << " ";
+        // std::cout << host_image_out[i] << " ";
+    }
+    std::cout << std::endl;
 
-	// Copy kernel template into host buffer
-	float host_kernel[3][3][3][3];
-	for (int kernel = 0; kernel < 3; ++kernel)
-	{
-		for (int channel = 0; channel < 3; ++channel)
-		{
-			for (int row = 0; row < 3; ++row)
-			{
-				for (int column = 0; column < 3; ++column)
-				{
-					host_kernel[kernel][channel][row][column] = kernel_template[row][column];
-				}
-			}
-		}
-	}
 
-	// Allocate space and copy data from kernel to GPU
-	float *dev_kernel = nullptr;
-	cudaMalloc(&dev_kernel, sizeof(host_kernel));
-	cudaMemcpy(dev_kernel, host_kernel, sizeof(host_kernel), cudaMemcpyHostToDevice);
+    mat_to_img_file(file_name2, host_image_out, conv1->getOutputH(), conv1->getOutputW());
 
-	// Perform the convolution on the GPU
-	const float alpha = 1.0f, beta = 0.0f;
-	checkCUDNN(cudnnConvolutionForward(cudnn_handle,
-									   &alpha,
-									   input_descriptor,
-									   dev_in_image,
-									   kernel_descriptor,
-									   dev_kernel,
-									   convolution_descriptor,
-									   algorithm_perf.algo,
-									   dev_workspace,
-									   workspace_bytes,
-									   &beta,
-									   output_descriptor,
-									   dev_out_image));
+    // Free allocated memory
+      // delete[] host_image_out;
+      cudaFree(dev_kernel);
+      cudaFree(dev_image_in);
+      cudaFree(dev_image_out);
 
-	// Allocate space and copy data from output image to host
-	float *out_image = new float[image_bytes];
-	cudaMemcpy(out_image, dev_out_image, image_bytes, cudaMemcpyDeviceToHost);
 
-	mat_to_img_file(file_name2, out_image, height, width);
-
-	delete[] out_image;
-	cudaFree(dev_kernel);
-	cudaFree(dev_in_image);
-	cudaFree(dev_out_image);
-	cudaFree(dev_workspace);
-
-	cudnnDestroyTensorDescriptor(input_descriptor);
-	cudnnDestroyTensorDescriptor(output_descriptor);
-	cudnnDestroyFilterDescriptor(kernel_descriptor);
-	cudnnDestroyConvolutionDescriptor(convolution_descriptor);
+//	// Allocate space and copy data from input image to GPU
+//	float *dev_in_image = nullptr;
+//	cudaMalloc(&dev_in_image, image_bytes);
+//	cudaMemcpy(dev_in_image, in_image.ptr<float>(0), image_bytes, cudaMemcpyHostToDevice);
+//
+//	// Allocate space for output image on GPU
+//	float *dev_out_image = nullptr;
+//	cudaMalloc(&dev_out_image, image_bytes);
+//	cudaMemset(dev_out_image, 0, image_bytes);
+//
+//	// Specify the kernel template
+//	const float kernel_template[3][3] = {
+//		{1, 1, 1},
+//		{1, -8, 1},
+//		{1, 1, 1}};
+//
+//	// Copy kernel template into host buffer
+//	float host_kernel[3][3][3][3];
+//	for (int kernel = 0; kernel < 3; ++kernel)
+//	{
+//		for (int channel = 0; channel < 3; ++channel)
+//		{
+//			for (int row = 0; row < 3; ++row)
+//			{
+//				for (int column = 0; column < 3; ++column)
+//				{
+//					host_kernel[kernel][channel][row][column] = kernel_template[row][column];
+//				}
+//			}
+//		}
+//	}
+//
+//	// Allocate space and copy data from kernel to GPU
+//	float *dev_kernel = nullptr;
+//	cudaMalloc(&dev_kernel, sizeof(host_kernel));
+//	cudaMemcpy(dev_kernel, host_kernel, sizeof(host_kernel), cudaMemcpyHostToDevice);
+//
+//	// Perform the convolution on the GPU
+//	const float alpha = 1.0f, beta = 0.0f;
+//	checkCUDNN(cudnnConvolutionForward(cudnn_handle,
+//									   &alpha,
+//									   input_descriptor,
+//									   dev_in_image,
+//									   kernel_descriptor,
+//									   dev_kernel,
+//									   convolution_descriptor,
+//									   algorithm_perf.algo,
+//									   dev_workspace,
+//									   workspace_bytes,
+//									   &beta,
+//									   output_descriptor,
+//									   dev_out_image));
+//
+//	// Allocate space and copy data from output image to host
+//	float *out_image = new float[image_bytes];
+//	cudaMemcpy(out_image, dev_out_image, image_bytes, cudaMemcpyDeviceToHost);
+//
+//	mat_to_img_file(file_name2, out_image, height, width);
+//
+//	delete[] out_image;
+//	cudaFree(dev_kernel);
+//	cudaFree(dev_in_image);
+//	cudaFree(dev_out_image);
+//	cudaFree(dev_workspace);
 
 	cudnnDestroy(cudnn_handle);
 
+	std::cerr << "Finished..." << std::endl;
 	return 0;
 }

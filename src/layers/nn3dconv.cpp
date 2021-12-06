@@ -80,6 +80,13 @@ NN3dConv::NN3dConv(int N_in, int C_in, int D_in, int H_in, int W_in,
                                           v_str_out.data()));
 }
 
+void NN3dConv::setData(void *input, void *weights, void *output)
+{
+    data_input = input;
+    data_filter = weights;
+    data_output = output;
+}
+
 int NN3dConv::getOutputN()
 {
     // return dim_N_in;
@@ -147,7 +154,8 @@ void NN3dConv::run(cudnnHandle_t cudnn_handle)
     cudaMalloc(&cudnn_workspace, workspace_bytes);
 
     // Run the convolution
-    const float alpha = 1.f, beta = 1.f;
+    const float alpha = 1.f, beta = 0.f;
+    std::cerr << "Running the convolution..." << std::endl;
     checkCUDNN(cudnnConvolutionForward(cudnn_handle,
                                        &alpha,
                                        desc_in,
@@ -161,10 +169,12 @@ void NN3dConv::run(cudnnHandle_t cudnn_handle)
                                        &beta,
                                        desc_out,
                                        data_output));
+    std::cerr << "Finished running the convolution" << std::endl;
 
+    cudaFree(cudnn_workspace);
 }
 
-NN3dConv::~NN3dConv()
-{
-    return;
-}
+//NN3dConv::~NN3dConv()
+//{
+//    return;
+//}

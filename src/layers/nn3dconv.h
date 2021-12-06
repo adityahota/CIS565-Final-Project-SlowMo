@@ -31,11 +31,11 @@ public:
              int p_D, int p_H, int p_W,
              int s_D, int s_H, int s_W,
              int d_D, int d_H, int d_W);
-    ~NN3dConv();
+    // ~NN3dConv();
 
     void run(cudnnHandle_t cudnn_handle);
 
-    void setData(void *input, void *weights, void *output, void *cudnn_workspace);
+    void setData(void *input, void *weights, void *output);
 
     int getOutputN();
     int getOutputC();
