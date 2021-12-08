@@ -1,6 +1,12 @@
 #include "includes.h"
 #include "flavr.h"
 
+int main()
+{
+
+    return 0;
+}
+
 #if 0
 
 std::vector<VidFrame> grab_vid_frames(std::string f_name)

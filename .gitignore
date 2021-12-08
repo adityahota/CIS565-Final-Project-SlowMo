@@ -1,2 +1,5 @@
 /Debug/
 /img/*
+a.out
+.vscode/settings.json
+temp/readtensor.c
