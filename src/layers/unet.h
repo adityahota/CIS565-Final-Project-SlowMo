@@ -1,50 +1,7 @@
 #pragma once
-#include "runnable.h"
-#include "conv3d.h"
-
-class Gate : Runnable
-{
-public:
-    void run(cudnnHandle_t h,
-             cudnnTensorDescriptor_t const *inputDesc, void *input,
-             cudnnTensorDescriptor_t *outputDesc, void *output,
-             TagUnionExtraRet *extra) override
-    {
-        // Do not mutate input
-        // Pool cudnnPoolingForward()
-        // fcLayer.run()
-        // Sigmoid cudnnActivationForward()
-        // Multiply cudnnOpTensor() output = input * output of sigmoid
-    }
-
-private:
-    Conv3d fcLayer;
-};
-
-class BStem : Runnable
-{
-public:
-    void run(cudnnHandle_t h,
-             cudnnTensorDescriptor_t const *inputDesc, void *input,
-             cudnnTensorDescriptor_t *outputDesc, void *output,
-             TagUnionExtraRet *extra) override;
-};
-class BBlock : Runnable
-{
-public:
-    void run(cudnnHandle_t h,
-             cudnnTensorDescriptor_t const *inputDesc, void *input,
-             cudnnTensorDescriptor_t *outputDesc, void *output,
-             TagUnionExtraRet *extra) override;
-};
-class DecBlock : Runnable
-{
-public:
-    void run(cudnnHandle_t h,
-             cudnnTensorDescriptor_t const *inputDesc, void *input,
-             cudnnTensorDescriptor_t *outputDesc, void *output,
-             TagUnionExtraRet *extra) override;
-};
+#include "bstem.h"
+#include "bblock.h"
+#include "decblock.h"
 
 class UNet : Runnable
 {

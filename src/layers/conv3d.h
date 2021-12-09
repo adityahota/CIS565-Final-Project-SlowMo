@@ -29,11 +29,13 @@ public:
              cudnnTensorDescriptor_t *outputDesc, void *output,
              TagUnionExtraRet *extra) override
     {
-        checkCUDNN(cudnnConvolutionForward(h,
-                                           &one, inDescT, input,
-                                           filterDesc, dev_filter, convDesc,
-                                           algo, workspace, workspaceSize,
-                                           &zero, outDescT, output));
+        //! cudnnConvolutionBiasActivationForward:
+
+        // checkCUDNN(cudnnConvolutionForward(h,
+        //                                    &one, inDescT, input,
+        //                                    filterDesc, dev_filter, convDesc,
+        //                                    algo, workspace, workspaceSize,
+        //                                    &zero, outDescT, output));
     }
 
 private:

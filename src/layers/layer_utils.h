@@ -1,24 +1,40 @@
 #pragma once
 #include "../includes.h"
 
+/**
+ * @brief bundles tensor descriptor and start of tensor
+ *
+ */
 typedef struct TensDescAndData
 {
     cudnnTensorDescriptor_t desc;
     void *tens;
 } TensDescAndData;
+/**
+ * @brief tag for tagged union
+ *
+ */
 enum ExtraReturnTag
 {
     NIL,
     TENSOR_DATA,
+    LRELU_COEFF,
 };
+/**
+ * @brief union for tagged union
+ *
+ */
 typedef union ExtraRetVal
 {
     void *nothing;
     TensDescAndData tensorBundle;
+    float *slope;
 } ExtraRetVal;
 
 /**
- * @brief Nothing | (TensorDescriptor, StartOfTensor) [Feel free to add more to suit needs]
+ * @brief Nothing |
+ * (TensorDescriptor, StartOfTensor) |
+ * LReLU Coeff #[Feel free to add more to suit needs]
  */
 typedef struct TagUnionExtraRet
 {
