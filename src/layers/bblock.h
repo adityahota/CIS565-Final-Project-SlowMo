@@ -12,6 +12,7 @@ public:
         // l1.run() conv relu
         // l2.run() conv ident
         // g.run()
+        // maybe downsample the initial input
         // cudnnAddTensor() input and current output to output
         // cudnnActivationForward relu inplace on output
     }
@@ -19,4 +20,5 @@ public:
 private:
     Conv3d l1, l2;
     Gate g;
+    bool downsample; //?????
 };
