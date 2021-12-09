@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <fstream>
+#include <stdexcept>
 
 typedef struct VidFrame
 { // TODO
