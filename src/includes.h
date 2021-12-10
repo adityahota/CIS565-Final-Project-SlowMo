@@ -10,6 +10,8 @@
 #include <vector>
 #include <list>
 
+#define BLOCK_SIZE 256
+
 typedef struct VidFrame
 { // TODO
 } VidFrame;
