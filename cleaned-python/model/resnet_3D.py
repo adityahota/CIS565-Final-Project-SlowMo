@@ -5,15 +5,14 @@ import torch.nn as nn
 
 __all__ = ['unet_18']
 
-useBias = False
-
 class Conv3DSimple(nn.Conv3d):
     def __init__(self,
                  in_planes,
                  out_planes,
                  midplanes=None,
                  stride=1,
-                 padding=1):
+                 padding=1,
+                 useBias=False):
 
         super(Conv3DSimple, self).__init__(
             in_channels=in_planes,
@@ -26,7 +25,7 @@ class Conv3DSimple(nn.Conv3d):
 
 class BasicStem(nn.Sequential):
     """The default conv-batchnorm-relu stem"""
-    def __init__(self):
+    def __init__(self, useBias=False):
         super().__init__(
             nn.Conv3d(3, 64, kernel_size=(3, 7, 7), stride=(1, 2, 2), padding=(1, 3, 3), bias=useBias),
             nn.ReLU(inplace=False)
@@ -43,22 +42,22 @@ class SEGating(nn.Module):
             nn.Sigmoid()
         )
         
-    def forward(self , x):
+    def forward(self, x):
         out = self.pool(x)
         y = self.attn_layer(out)
         return x * y
 
 class BasicBlock(nn.Module):
-    def __init__(self, inplanes, planes, conv_builder, stride=1, downsample=None):
+    def __init__(self, inplanes, planes, stride=1, downsample=None):
         midplanes = (inplanes * planes * 3 * 3 * 3) // (inplanes * 3 * 3 + 3 * planes)
 
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Sequential(
-            conv_builder(inplanes, planes, midplanes, stride),
+            Conv3DSimple(inplanes, planes, midplanes, stride),
             nn.ReLU(inplace=True)
         )
         self.conv2 = nn.Sequential(
-            conv_builder(planes, planes, midplanes),
+            Conv3DSimple(planes, planes, midplanes),
         )
         self.fg = SEGating(planes) ## Feature Gating
         self.relu = nn.ReLU(inplace=True)
@@ -79,24 +78,15 @@ class BasicBlock(nn.Module):
         return out
 
 class VideoResNet(nn.Module):
-    def __init__(self, stem=BasicStem):
-        """Generic resnet video generator.
-
-        Args:
-            block (nn.Module): resnet building block
-            stem (nn.Module, optional): Resnet stem, if None, defaults to conv-bn-relu. Defaults to None.
-        """
+    def __init__(self, useBias=False):
         super(VideoResNet, self).__init__()
         self.inplanes = 64
 
-        self.stem = stem()
+        self.stem = BasicStem(useBias)
         self.layer1 = self._make_layer(64, stride=1)
         self.layer2 = self._make_layer(128, stride=2)
         self.layer3 = self._make_layer(256, stride=2)
         self.layer4 = self._make_layer(512, stride=1)
-
-        # init weights
-    #    self._initialize_weights()
 
 
     def forward(self, x):
@@ -111,31 +101,17 @@ class VideoResNet(nn.Module):
         downsample = None
 
         if stride != 1 or self.inplanes != planes:
-            print("Whoo")
             ds_stride = (1, stride, stride)
-            downsample = nn.Sequential(
-                nn.Conv3d(self.inplanes, planes,
-                          kernel_size=1, stride=ds_stride, bias=False),
-            )
+            downsample = nn.Conv3d(self.inplanes, planes, kernel_size=1, stride=ds_stride, bias=False)
             stride = ds_stride
-        else:
-            print("WHAA?")
 
-        layers = []
-        layers.append(BasicBlock(self.inplanes, planes, Conv3DSimple, stride, downsample))
-
+        b1 = BasicBlock(self.inplanes, planes, stride, downsample)
         self.inplanes = planes
-        layers.append(BasicBlock(self.inplanes, planes, Conv3DSimple))
+        b2 = BasicBlock(self.inplanes, planes)
 
-        return nn.Sequential(*layers)
+        return nn.Sequential(b1, b2)
 
-   # def _initialize_weights(self): 
-   #     for m in self.modules(): # all modules are nn.Conv3d
-   #         nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-   #         if m.bias is not None:
-   #             nn.init.constant_(m.bias, 0)
-
-def unet_18():
+def unet_18(useBias=False):
     """
     Construct 18 layer Unet3D model as in
     https://arxiv.org/abs/1711.11248
@@ -144,4 +120,4 @@ def unet_18():
         nn.Module: R3D-18 encoder
     """
 
-    return VideoResNet()
+    return VideoResNet(useBias)
