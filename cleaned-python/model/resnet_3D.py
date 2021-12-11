@@ -79,33 +79,25 @@ class BasicBlock(nn.Module):
         return out
 
 class VideoResNet(nn.Module):
-    def __init__(self, block, conv_makers, layers,
-                 stem, zero_init_residual=False):
+    def __init__(self, stem=BasicStem):
         """Generic resnet video generator.
 
         Args:
             block (nn.Module): resnet building block
-            conv_makers (list(functions)): generator function for each layer
-            layers (List[int]): number of blocks per layer
             stem (nn.Module, optional): Resnet stem, if None, defaults to conv-bn-relu. Defaults to None.
         """
         super(VideoResNet, self).__init__()
         self.inplanes = 64
 
         self.stem = stem()
-
-        self.layer1 = self._make_layer(block, conv_makers[0], 64, layers[0], stride=1 )
-        self.layer2 = self._make_layer(block, conv_makers[1], 128, layers[1], stride=2 , temporal_stride=1)
-        self.layer3 = self._make_layer(block, conv_makers[2], 256, layers[2], stride=2 , temporal_stride=1)
-        self.layer4 = self._make_layer(block, conv_makers[3], 512, layers[3], stride=1, temporal_stride=1)
+        self.layer1 = self._make_layer(64, stride=1)
+        self.layer2 = self._make_layer(128, stride=2)
+        self.layer3 = self._make_layer(256, stride=2)
+        self.layer4 = self._make_layer(512, stride=1)
 
         # init weights
-        self._initialize_weights()
+    #    self._initialize_weights()
 
-        if zero_init_residual:
-            for m in self.modules():
-                if isinstance(m, Bottleneck):
-                    nn.init.constant_(m.bn3.weight, 0)
 
     def forward(self, x):
         x_0 = self.stem(x)
@@ -115,41 +107,33 @@ class VideoResNet(nn.Module):
         x_4 = self.layer4(x_3)
         return x_0 , x_1 , x_2 , x_3 , x_4
 
-    def _make_layer(self, block, conv_builder, planes, blocks, stride=1, temporal_stride=None):
+    def _make_layer(self, planes, stride=1):
         downsample = None
 
         if stride != 1 or self.inplanes != planes:
-            ds_stride = (temporal_stride if temporal_stride else stride, stride, stride)
+            print("Whoo")
+            ds_stride = (1, stride, stride)
             downsample = nn.Sequential(
                 nn.Conv3d(self.inplanes, planes,
                           kernel_size=1, stride=ds_stride, bias=False),
             )
             stride = ds_stride
+        else:
+            print("WHAA?")
 
         layers = []
-        layers.append(block(self.inplanes, planes, conv_builder, stride, downsample ))
+        layers.append(BasicBlock(self.inplanes, planes, Conv3DSimple, stride, downsample))
 
         self.inplanes = planes
-        for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes, conv_builder ))
+        layers.append(BasicBlock(self.inplanes, planes, Conv3DSimple))
 
         return nn.Sequential(*layers)
 
-    def _initialize_weights(self):
-        for m in self.modules():
-            if isinstance(m, nn.Conv3d):
-                nn.init.kaiming_normal_(m.weight, mode='fan_out',
-                                        nonlinearity='relu')
-                if m.bias is not None:
-                    nn.init.constant_(m.bias, 0)
-            elif isinstance(m, nn.BatchNorm3d):
-                nn.init.constant_(m.weight, 1)
-                nn.init.constant_(m.bias, 0)
-            elif isinstance(m, nn.Linear):
-                nn.init.normal_(m.weight, 0, 0.01)
-                nn.init.constant_(m.bias, 0)
-
-
+   # def _initialize_weights(self): 
+   #     for m in self.modules(): # all modules are nn.Conv3d
+   #         nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+   #         if m.bias is not None:
+   #             nn.init.constant_(m.bias, 0)
 
 def unet_18():
     """
@@ -160,7 +144,4 @@ def unet_18():
         nn.Module: R3D-18 encoder
     """
 
-    return VideoResNet(block=BasicBlock,
-            conv_makers=[Conv3DSimple] * 4,
-            layers=[2, 2, 2, 2],
-            stem=BasicStem)
+    return VideoResNet()
