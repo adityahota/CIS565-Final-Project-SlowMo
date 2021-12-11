@@ -1,10 +1,11 @@
 /Debug/
 /img/*
 a.out
-.vscode/settings.json
 temp/readtensor.c
 tensor_bins/*
 testexec
 test.txt
 testLoad.txt
 testTsrLoadingExe
+.vscode/c_cpp_properties.json
+.vscode/settings.json

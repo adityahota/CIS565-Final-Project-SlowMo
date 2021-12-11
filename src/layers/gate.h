@@ -17,5 +17,5 @@ public:
     }
 
 private:
-    Conv3d<true> fcLayer;
+    Conv3dBias fcLayer;
 };

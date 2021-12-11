@@ -1,6 +1,12 @@
 #pragma once
 #include "../includes.h"
 
+#define GET_DIM5_N(x) ((x).dims[0])
+#define GET_DIM5_C(x) ((x).dims[1])
+#define GET_DIM5_D(x) ((x).dims[2])
+#define GET_DIM5_H(x) ((x).dims[3])
+#define GET_DIM5_W(x) ((x).dims[4])
+
 /**
  * @brief bundles tensor descriptor and start of tensor
  *
@@ -54,29 +60,38 @@ typedef struct TsrDims
 } TsrDims;
 
 /**
+ * @brief Contains the dimensions of a 5D tensor or kernel, used with 3D convolutions
+ * or pooling. Naturally, NCDHW for a tensor and C_out-C_in-DHW for a filter.
+ */
+typedef struct Dims5
+{
+    int dims[5];
+} Dims5;
+
+/**
+ * @brief Contains the dimensions of a 4D tensor or kernel;
+ * used with 2D convolutions or pooling
+ */
+typedef struct Dims4
+{
+    int dims[4];
+} Dims4;
+
+/**
+ * @brief Contains an array of size 3, used for 3D convolution/pooling operations
+ */
+typedef struct Dims3
+{
+    int dims[3];
+} Dims3;
+
+/**
  * @brief Gives tensor dimension data by parsing filename
  *
  * @param filename
  * @return TsrDims
  */
-TsrDims filename2dims(std::string const &filename)
-{
-    TsrDims td;
-    std::vector<int> dim = std::vector<int>();
-    auto idx = filename.find("__");
-    auto subStr = filename.substr(idx + 2);
-    std::istringstream ss(subStr);
-    char c;
-    do
-    {
-        int val;
-        ss >> val;
-        dim.push_back(val);
-    } while (ss >> c, c == 'x');
-    td.dims = dim;
-    td.layout = true;
-    return td;
-}
+TsrDims filename2dims(std::string const &filename);
 
 /**
  * @brief Contains both the length of the array and a pointer to the first element
@@ -101,22 +116,13 @@ typedef struct SizedArrayFloat
  * @param fName name of file
  * @return SizedArrayFloat Holds array size and pointer to data. Caller is responsible for deleting the array
  */
-SizedArrayFloat readTensor2FloatBuffer(std::string const &fName)
-{
-    // Read tensor file into the filter array
-    float *buf;
-    int len;
-    std::ifstream is;
-    is.open(fName, std::ios::binary);
-    is.seekg(0, std::ios::end);
-    len = is.tellg();
-    is.seekg(0, std::ios::beg);
-    int numFloats = len / sizeof(float);
-    buf = new float[numFloats];
-    is.read((char *)buf, len);
-    is.close();
-    SizedArrayFloat sa;
-    sa.arr = buf;
-    sa.count = numFloats;
-    return sa;
-}
+SizedArrayFloat readTensor2FloatBuffer(std::string const &fName);
+
+// template <int numDims>
+// typedef struct Dims
+// {
+//     int dims[numDims];
+// } Dims;
+
+Dims5 mkDims5(int d[5]);
+Dims3 mkDims3(int d[3]);

@@ -49,8 +49,8 @@ public:
     }
 
 private:
-    Conv2d<true> outConv;
-    Conv2d<false> featureFuse;
+    Conv2dBias outConv;
+    Conv2d featureFuse;
     LReLU lr;
     cudnnTensorDescriptor_t flattenOutDesc; // make this separately to apply post flattening
     dim3 numBlocks;

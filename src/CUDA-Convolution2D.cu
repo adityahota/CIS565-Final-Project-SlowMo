@@ -1,3 +1,4 @@
+#if 0
 /*
  ============================================================================
  Name        : CUDA-Convolution2D.cu
@@ -148,3 +149,4 @@ int main(void)
 	std::cerr << "Finished..." << std::endl;
 	return 0;
 }
+#endif
