@@ -324,7 +324,7 @@ void leakyReLuTest(cudnnHandle_t cudnn_handle)
 
 void avgPool3dTest(cudnnHandle_t cudnn_handle)
 {
-    int dim1 = 3, dim2 = 3, dim3 = 2, dim4 = 1, dim5 = 5;
+    int dim1 = 1, dim2 = 512, dim3 = 4, dim4 = 256, dim5 = 256;
     int num_elements_in = dim1 * dim2 * dim3 * dim4 * dim5;
     int num_elements_in_bytes = num_elements_in * sizeof(float);
 
@@ -342,7 +342,7 @@ void avgPool3dTest(cudnnHandle_t cudnn_handle)
                     {
                         int idx = a * dim2 * dim3 * dim4 * dim5 + b * dim3 * dim4 * dim5
                                   + c * dim4 * dim5 + d * dim5 + e;
-                        host_tensor_in[idx] = 0.15 * c * d + 0.2 * e + a * b;
+                        host_tensor_in[idx] = pow(-1, e * a + c) * (0.15 * c * d + 0.2 * e);
                         // std::cout << idx << ": " << host_tensor[idx] << std::endl;
                     }
                 }
@@ -385,11 +385,21 @@ void avgPool3dTest(cudnnHandle_t cudnn_handle)
     cudaMemcpy(host_tensor_out, dev_tensor_out, num_elements_out_bytes, cudaMemcpyDeviceToHost);
 
     // Print the data
-    for (int i = 0; i < num_elements_out; i++)
+    std::cout << std::fixed << std::setprecision(5);
+    for (int i = 0; i < num_elements_out / 8; i++)
     {
-        std::cout << i << ": " << host_tensor_out[i] << std::endl;
-    }
+        for (int j = 0; j < 8; j++)
+        {
+            float val = host_tensor_out[i * 8 + j];
+            if (val > -0.00001 && val < 0.00001)
+            {
+                val = 0.f;
+            }
 
+            std::cout << val << " ";
+        }
+        std::cout << std::endl;
+    }
 }
 
 int main(void)
