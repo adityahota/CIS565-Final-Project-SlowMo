@@ -13,6 +13,7 @@
 
 #include "layers/nn3dconv.h"
 #include "layers/nnLeakyRelu.h"
+#include "layers/nn3dAvgPool.h"
 
 #include <cudnn.h>
 #include <iostream>
@@ -28,9 +29,6 @@ void convolution3dTest(cudnnHandle_t cudnn_handle)
 
     // Load the image
     cv::Mat host_image_in_NHWC = img_file_to_mat(file_name1);
-
-    // Set the CUDA GPU device
-    cudaSetDevice(0);
 
     // Set up tensor and filter dimensions
     int dim_N_in = 1, dim_C_in = 3, dim_D_in = 1, dim_H_in = 512, dim_W_in = 512;
@@ -151,9 +149,6 @@ void convolution3dTestDepth2(cudnnHandle_t cudnn_handle)
     // Load the image
     cv::Mat host_image_in_NHWC = img_file_to_mat(file_name1);
 
-    // Set the CUDA GPU device
-    cudaSetDevice(0);
-
     // Set up tensor and filter dimensions
     int dim_N_in = 1, dim_C_in = 3, dim_D_in = 1, dim_H_in = 512, dim_W_in = 512;
     int kern_C_out = 3, kern_C_in = 3, kern_D = 2, kern_H = 1, kern_W = 5;
@@ -253,7 +248,7 @@ void convolution3dTestDepth2(cudnnHandle_t cudnn_handle)
 
 void leakyReLuTest(cudnnHandle_t cudnn_handle)
 {
-    int dim1 = 3, dim2 = 1, dim3 = 2, dim4 = 64, dim5 = 64;
+    int dim1 = 64, dim2 = 1, dim3 = 2, dim4 = 512, dim5 = 512;
     int num_elements = dim1 * dim2 * dim3 * dim4 * dim5;
     int num_elements_bytes = num_elements * sizeof(float);
 
@@ -309,14 +304,14 @@ void leakyReLuTest(cudnnHandle_t cudnn_handle)
                     {
                         int idx = a * dim2 * dim3 * dim4 * dim5 + b * dim3 * dim4 * dim5
                                   + c * dim4 * dim5 + d * dim5 + e;
-                         std::cout << idx << ": " << host_tensor_relu[idx] << std::endl;
+                         // std::cout << idx << ": " << host_tensor_relu[idx] << std::endl;
                     }
                 }
             }
         }
     }
 
-    int index = 12935;
+    int index = 33554431;
     std::cout << index << ": " << host_tensor_relu[index] << std::endl;
 
 
@@ -327,14 +322,89 @@ void leakyReLuTest(cudnnHandle_t cudnn_handle)
 
 }
 
+void avgPool3dTest(cudnnHandle_t cudnn_handle)
+{
+    int dim1 = 3, dim2 = 3, dim3 = 2, dim4 = 1, dim5 = 5;
+    int num_elements_in = dim1 * dim2 * dim3 * dim4 * dim5;
+    int num_elements_in_bytes = num_elements_in * sizeof(float);
+
+    // Set up tensor on the host
+    float *host_tensor_in = new float[num_elements_in];
+    for (int a = 0; a < dim1; a++)
+    {
+        for (int b = 0; b < dim2; b++)
+        {
+            for (int c = 0; c < dim3; c++)
+            {
+                for (int d = 0; d < dim4; d++)
+                {
+                    for (int e = 0; e < dim5; e++)
+                    {
+                        int idx = a * dim2 * dim3 * dim4 * dim5 + b * dim3 * dim4 * dim5
+                                  + c * dim4 * dim5 + d * dim5 + e;
+                        host_tensor_in[idx] = 0.15 * c * d + 0.2 * e + a * b;
+                        // std::cout << idx << ": " << host_tensor[idx] << std::endl;
+                    }
+                }
+            }
+        }
+    }
+
+
+    // Set up 3D Avg Pool layer
+    NN3dAvgPool *pool = new NN3dAvgPool(dim1, dim2, dim3, dim4, dim5,
+                                        dim3, dim4, dim5,
+                                        0, 0, 0,
+                                        dim3, dim4, dim5);
+
+    std::cerr << "N: " << pool->getOutputN() << " C: " << pool->getOutputC() << " D: " << pool->getOutputD()
+              << " H: " << pool->getOutputH() << " W: " << pool->getOutputW() << std::endl;
+
+    // Get output dimensions and allocate memory on host
+    int num_elements_out = pool->getOutputN() * pool->getOutputC() *
+                           pool->getOutputD() * pool->getOutputH() * pool->getOutputW();
+    int num_elements_out_bytes = num_elements_out * sizeof(float);
+    float *host_tensor_out = new float[num_elements_out];
+
+    // Set up tensors on the device and copy data
+    float *dev_tensor_in = nullptr;
+    cudaMalloc(&dev_tensor_in, num_elements_in_bytes);
+    cudaMemcpy(dev_tensor_in, host_tensor_in, num_elements_in_bytes, cudaMemcpyHostToDevice);
+
+    float *dev_tensor_out = nullptr;
+    cudaMalloc(&dev_tensor_out, num_elements_out_bytes);
+    cudaMemset(dev_tensor_out, 0, num_elements_out_bytes);
+
+    // Set Avg Pool operation data pointers
+    pool->setData(dev_tensor_in, dev_tensor_out);
+
+    // Run the Avg Pool operation
+    pool->run(cudnn_handle);
+
+    // Copy the data back to the host
+    cudaMemcpy(host_tensor_out, dev_tensor_out, num_elements_out_bytes, cudaMemcpyDeviceToHost);
+
+    // Print the data
+    for (int i = 0; i < num_elements_out; i++)
+    {
+        std::cout << i << ": " << host_tensor_out[i] << std::endl;
+    }
+
+}
+
 int main(void)
 {
+    std::cerr << "Starting..." << std::endl;
     // Create cuDNN handle
     cudnnHandle_t cudnn_handle;
     cudnnCreate(&cudnn_handle);
 
+    // Set the CUDA GPU device
+    cudaSetDevice(0);
+
     // convolution3dTestDepth2(cudnn_handle);
-    leakyReLuTest(cudnn_handle);
+    // leakyReLuTest(cudnn_handle);
+    avgPool3dTest(cudnn_handle);
 
     std::cerr << "Exiting..." << std::endl;
     return 0;

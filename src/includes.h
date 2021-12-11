@@ -12,6 +12,12 @@
 
 #define BLOCK_SIZE 256
 
+#define GET_DIM_N(x) (x[0])
+#define GET_DIM_C(x) (x[1])
+#define GET_DIM_D(x) (x[2])
+#define GET_DIM_H(x) (x[3])
+#define GET_DIM_W(x) (x[4])
+
 typedef struct VidFrame
 { // TODO
 } VidFrame;
