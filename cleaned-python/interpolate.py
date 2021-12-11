@@ -12,8 +12,6 @@ import tqdm
 from torchvision.io import read_video , write_video
 from dataset.transforms import ToTensorVideo , Resize
 
-import torch.nn.functional as F
-
 
 import argparse
 
@@ -67,13 +65,12 @@ if input_video.startswith("http"):
     output_video = "video" + str(args.output_ext) 
 
 def loadModel(model, checkpoint):
-    
     saved_state_dict = torch.load(checkpoint)['state_dict']
     saved_state_dict = {k.partition("module.")[-1]:v for k,v in saved_state_dict.items()}
     model.load_state_dict(saved_state_dict)
 
 checkpoint = args.load_model
-from model.FLAVR_arch import UNet_3D_3D
+from FLAVR_arch import UNet_3D_3D
 
 model = UNet_3D_3D(n_inputs=4, n_outputs=n_outputs)
 loadModel(model, checkpoint)
@@ -122,15 +119,15 @@ def video_transform(videoTensor , downscale=1):
     return videoTensor , resizes
 
 if args.is_folder:
-    videoTensor = files_to_videoTensor(input_video , args.downscale)
+    videoTensor = files_to_videoTensor(input_video, args.downscale)
 else:
     videoTensor = video_to_tensor(input_video)
 
 idxs = torch.Tensor(range(len(videoTensor))).type(torch.long).view(1,-1).unfold(1,size=nbr_frame,step=1).squeeze(0)
-videoTensor , resizes = video_transform(videoTensor , args.downscale)
-print("Video tensor shape is , " , videoTensor.shape)
+videoTensor , resizes = video_transform(videoTensor, args.downscale)
+print("Video tensor shape is " , videoTensor.shape)
 
-frames = torch.unbind(videoTensor , 1)
+frames = torch.unbind(videoTensor, 1)
 n_inputs = len(frames)
 width = n_outputs + 1
 
@@ -140,7 +137,7 @@ outputs.append(frames[idxs[0][1]])
 
 model = model.eval()
 
-for i in tqdm.tqdm(range(len(idxs))):
+for i in range(1,2):# tqdm.tqdm(range(len(idxs))):
     idxSet = idxs[i]
     inputs = [frames[idx_].cuda().unsqueeze(0) for idx_ in idxSet]
     with torch.no_grad():
