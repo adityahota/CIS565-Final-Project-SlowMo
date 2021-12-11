@@ -7,13 +7,6 @@ __all__ = ['unet_18']
 
 useBias = False
 
-class identity(nn.Module):
-    def __init__(self , *args , **kwargs):
-        super().__init__()
-    
-    def forward(self , x):
-        return x
-
 class Conv3DSimple(nn.Conv3d):
     def __init__(self,
                  in_planes,
@@ -30,12 +23,6 @@ class Conv3DSimple(nn.Conv3d):
             padding=padding,
             bias=useBias)
 
-    @staticmethod
-    def get_downsample_stride(stride , temporal_stride):
-        if temporal_stride:
-            return (temporal_stride, stride, stride)
-        else:
-            return (stride , stride , stride)
 
 class BasicStem(nn.Sequential):
     """The default conv-batchnorm-relu stem
@@ -44,7 +31,6 @@ class BasicStem(nn.Sequential):
         super().__init__(
             nn.Conv3d(3, 64, kernel_size=(3, 7, 7), stride=(1, 2, 2),
                 padding=(1, 3, 3), bias=useBias),
-            batchnorm(64),
             nn.ReLU(inplace=False))
 
 
@@ -65,19 +51,12 @@ class Conv2Plus1D(nn.Sequential):
             nn.Conv3d(in_planes, midplanes, kernel_size=(1, 3, 3),
                       stride=(1, stride, stride), padding=(0, padding, padding),
                       bias=False),
-            # batchnorm(midplanes),
             nn.ReLU(inplace=True),
             nn.Conv3d(midplanes, out_planes, kernel_size=(3, 1, 1),
                       stride=(temporal_stride, 1, 1), padding=(padding, 0, 0),
                       bias=False))
 
-    @staticmethod
-    def get_downsample_stride(stride , temporal_stride):
-        if temporal_stride:
-            return (temporal_stride, stride, stride)
-        else:
-            return (stride , stride , stride)
-
+ 
 class R2Plus1dStem(nn.Sequential):
     """R(2+1)D stem is different than the default one as it uses separated 3D convolution
     """
@@ -86,12 +65,10 @@ class R2Plus1dStem(nn.Sequential):
             nn.Conv3d(3, 45, kernel_size=(1, 7, 7),
                       stride=(1, 2, 2), padding=(0, 3, 3),
                       bias=False),
-            batchnorm(45),
             nn.ReLU(inplace=True),
             nn.Conv3d(45, 64, kernel_size=(3, 1, 1),
                       stride=(1, 1, 1), padding=(1, 0, 0),
                       bias=False),
-            batchnorm(64),
             nn.ReLU(inplace=True))
 
 
@@ -123,12 +100,10 @@ class BasicBlock(nn.Module):
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Sequential(
             conv_builder(inplanes, planes, midplanes, stride),
-            batchnorm(planes),
             nn.ReLU(inplace=True)
         )
         self.conv2 = nn.Sequential(
             conv_builder(planes, planes, midplanes),
-            batchnorm(planes)
         )
         self.fg = SEGating(planes) ## Feature Gating
         self.relu = nn.ReLU(inplace=True)
@@ -190,11 +165,10 @@ class VideoResNet(nn.Module):
         downsample = None
 
         if stride != 1 or self.inplanes != planes * block.expansion:
-            ds_stride = conv_builder.get_downsample_stride(stride , temporal_stride)
+            ds_stride = (temporal_stride if temporal_stride else stride, stride, stride)
             downsample = nn.Sequential(
                 nn.Conv3d(self.inplanes, planes * block.expansion,
                           kernel_size=1, stride=ds_stride, bias=False),
-                batchnorm(planes * block.expansion)
             )
             stride = ds_stride
 
@@ -222,35 +196,17 @@ class VideoResNet(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
 
-def _video_resnet(arch, pretrained=False, progress=True, **kwargs):
-    model = VideoResNet(**kwargs)
-    ## TODO: Other 3D resnet models, like S3D, r(2+1)D.
 
-    if pretrained:
-        state_dict = load_state_dict_from_url(model_urls[arch],
-                                              progress=progress)
-        model.load_state_dict(state_dict)
-    return model
-
-
-def unet_18(pretrained=False, bn=False, progress=True, **kwargs):
+def unet_18():
     """
     Construct 18 layer Unet3D model as in
     https://arxiv.org/abs/1711.11248
 
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on Kinetics-400
-        progress (bool): If True, displays a progress bar of the download to stderr
-
     Returns:
         nn.Module: R3D-18 encoder
     """
-    global batchnorm
-    batchnorm = identity
 
-    return _video_resnet('r3d_18',
-                         pretrained, progress,
-                         block=BasicBlock,
-                         conv_makers=[Conv3DSimple] * 4,
-                         layers=[2, 2, 2, 2],
-                         stem=BasicStem, **kwargs)
+    return VideoResNet(block=BasicBlock,
+            conv_makers=[Conv3DSimple] * 4,
+            layers=[2, 2, 2, 2],
+            stem=BasicStem)

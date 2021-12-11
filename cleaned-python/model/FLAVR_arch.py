@@ -49,7 +49,7 @@ class UNet_3D_3D(nn.Module):
         unet_3D = importlib.import_module(".resnet_3D" , "model")
         if n_outputs > 1:
             unet_3D.useBias = True
-        self.encoder = getattr(unet_3D , "unet_18")(pretrained=False)#FIXME            
+        self.encoder = getattr(unet_3D , "unet_18")()#FIXME
 
         self.decoder = nn.Sequential(
             Conv_3d(nf[0], nf[1] , kernel_size=3, padding=1, bias=True),
