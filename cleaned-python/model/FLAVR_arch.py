@@ -1,8 +1,6 @@
-import importlib
-
 import torch
 import torch.nn as nn
-from .resnet_3D import SEGating
+from .resnet_3D import SEGating, Encoder
 
 
 class Conv_2d(nn.Module):
@@ -43,11 +41,9 @@ class UNet_3D_3D(nn.Module):
         nf = [512 , 256 , 128 , 64]
         out_channels = 3*n_outputs
 
-        growth = 2
         self.lrelu = nn.LeakyReLU(0.2, True)
 
-        unet_3D = importlib.import_module(".resnet_3D" , "model")
-        self.encoder = getattr(unet_3D , "unet_18")(useBias=(n_outputs > 1))#FIXME
+        self.encoder = Encoder(useBias=(n_outputs>1))
 
         self.decoder = nn.Sequential(
             Conv_3d(nf[0], nf[1] , kernel_size=3, padding=1, bias=True),

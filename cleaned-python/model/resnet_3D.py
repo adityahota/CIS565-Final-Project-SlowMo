@@ -3,26 +3,6 @@
 import torch
 import torch.nn as nn
 
-__all__ = ['unet_18']
-
-class Conv3DSimple(nn.Conv3d):
-    def __init__(self,
-                 in_planes,
-                 out_planes,
-                 midplanes=None,
-                 stride=1,
-                 padding=1,
-                 useBias=False):
-
-        super(Conv3DSimple, self).__init__(
-            in_channels=in_planes,
-            out_channels=out_planes,
-            kernel_size=(3, 3, 3),
-            stride=stride,
-            padding=padding,
-            bias=useBias)
-
-
 class BasicStem(nn.Sequential):
     """The default conv-batchnorm-relu stem"""
     def __init__(self, useBias=False):
@@ -48,22 +28,20 @@ class SEGating(nn.Module):
         return x * y
 
 class BasicBlock(nn.Module):
-    def __init__(self, inplanes, planes, stride=1, downsample=False):
-        midplanes = (inplanes * planes * 3 * 3 * 3) // (inplanes * 3 * 3 + 3 * planes)
-
+    def __init__(self, inplanes, planes, stride=1, downsample=False, useBias=False):
         super(BasicBlock, self).__init__()
+
         self.conv1 = nn.Sequential(
-            Conv3DSimple(inplanes, planes, midplanes, stride),
+            nn.Conv3d(inplanes, planes, kernel_size=(3, 3, 3), stride=stride, padding=1, bias=useBias),
             nn.ReLU(inplace=True)
         )
         self.conv2 = nn.Sequential(
-            Conv3DSimple(planes, planes, midplanes),
+            nn.Conv3d(planes, planes, kernel_size=(3, 3, 3), stride=1, padding=1, bias=useBias),
         )
         self.fg = SEGating(planes) ## Feature Gating
         self.relu = nn.ReLU(inplace=True)
         self.downsample = nn.Conv3d(inplanes, planes, kernel_size=1, stride=stride, bias=False) \
                 if downsample else None
-        self.stride = stride
 
     def forward(self, x):
         residual = x
@@ -72,27 +50,24 @@ class BasicBlock(nn.Module):
         out = self.fg(out)
         if self.downsample is not None:
             residual = self.downsample(x)
-
         out += residual
-        out = self.relu(out)
+        return self.relu(out)
 
-        return out
-
-class VideoResNet(nn.Module):
+class Encoder(nn.Module):
     def __init__(self, useBias=False):
-        super(VideoResNet, self).__init__()
+        super(Encoder, self).__init__()
         self.inplanes = 64
 
         self.stem = BasicStem(useBias)
 
-        self.layer1 = nn.Sequential(BasicBlock(64, 64, stride=(1,1,1), downsample=False),
-                BasicBlock(64, 64))
-        self.layer2 = nn.Sequential(BasicBlock(64, 128, stride=(1,2,2), downsample=True),
-                BasicBlock(128, 128))
-        self.layer3 = nn.Sequential(BasicBlock(128, 256, stride=(1,2,2), downsample=True),
-                BasicBlock(256, 256))
-        self.layer4 = nn.Sequential(BasicBlock(256, 512, stride=(1,1,1), downsample=True),
-                BasicBlock(512, 512))
+        self.layer1 = nn.Sequential(BasicBlock(64, 64, stride=(1,1,1), downsample=False, useBias=useBias),
+                BasicBlock(64, 64, useBias=useBias))
+        self.layer2 = nn.Sequential(BasicBlock(64, 128, stride=(1,2,2), downsample=True, useBias=useBias),
+                BasicBlock(128, 128, useBias=useBias))
+        self.layer3 = nn.Sequential(BasicBlock(128, 256, stride=(1,2,2), downsample=True, useBias=useBias),
+                BasicBlock(256, 256, useBias=useBias))
+        self.layer4 = nn.Sequential(BasicBlock(256, 512, stride=(1,1,1), downsample=True, useBias=useBias),
+                BasicBlock(512, 512, useBias=useBias))
 
 
     def forward(self, x):
@@ -103,13 +78,3 @@ class VideoResNet(nn.Module):
         x_4 = self.layer4(x_3)
         return x_0 , x_1 , x_2 , x_3 , x_4
 
-def unet_18(useBias=False):
-    """
-    Construct 18 layer Unet3D model as in
-    https://arxiv.org/abs/1711.11248
-
-    Returns:
-        nn.Module: R3D-18 encoder
-    """
-
-    return VideoResNet(useBias)
