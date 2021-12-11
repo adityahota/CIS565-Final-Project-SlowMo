@@ -1,0 +1,2 @@
+# pytorch saved state is too big for github
+*.pth
