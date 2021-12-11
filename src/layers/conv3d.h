@@ -1,8 +1,149 @@
 #pragma once
 #include "runnable.h"
 
-template <bool hasBias>
+#define CONV3D_TENSOR_KERN_DIM 5
+#define CONV2D_TENSOR_KERN_DIM 4
+
+class Conv3dBias : Runnable
+{
+public:
+    void run(cudnnHandle_t h,
+             cudnnTensorDescriptor_t const *inputDesc, void *input,
+             cudnnTensorDescriptor_t *outputDesc, void *output,
+             TagUnionExtraRet *extra) override;
+    // {
+    //     if constexpr (hasBias)
+    //     {
+    //         // y = Act( alpha1 * conv(x) + alpha2 * z + bias )
+    //         // z and y can alias to same buffer but x cannot overlap them
+    //         checkCUDNN(cudnnConvolutionBiasActivationForward(
+    //             h,
+    //             &one,
+    //             inDescT, input,               // conv input
+    //             filterDesc, dev_filter,       // conv filter
+    //             convDesc, algo,               // conv algo
+    //             dev_workspace, workspaceSize, // conv workspace
+    //             &zero, outDescT, output,      // z
+    //             biasDesc, dev_bias,           // bias
+    //             activDesc,                    // activation
+    //             outDescT, output              // output
+    //             ));
+    //     }
+    //     else
+    //     {
+    //         // checkCUDNN(cudnnConvolutionForward());
+    //         // activation
+    //     }
+    // }
+
+    Conv3dBias(std::string filterFile, std::string biasFile, cudnnActivationMode_t actMode,
+               Dims5 dims_in, Dims5 dims_filter, Dims3 padding, Dims3 stride, Dims3 dilation);
+
+    ~Conv3dBias()
+    {
+        cudnnDestroyTensorDescriptor(desc_in);
+        cudnnDestroyTensorDescriptor(desc_out);
+        cudnnDestroyFilterDescriptor(desc_filter);
+        cudnnDestroyConvolutionDescriptor(desc_conv);
+        cudnnDestroyTensorDescriptor(desc_bias);
+
+        cudaFree(dev_filter);
+        cudaFree(dev_workspace);
+        cudaFree(dev_bias);
+    }
+
+private:
+    // Descriptors
+    cudnnTensorDescriptor_t desc_in;
+    cudnnTensorDescriptor_t desc_out;
+    cudnnFilterDescriptor_t desc_filter;
+    cudnnConvolutionDescriptor_t desc_conv;
+    cudnnTensorDescriptor_t desc_bias;
+
+    // Tensor dimensions
+    Dims5 dims_in;
+    Dims5 dims_out;
+    Dims5 dims_filter;
+
+    // Convolution parameters (padding, stride, dilation)
+    Dims3 pad;
+    Dims3 str;
+    Dims3 dil;
+
+    // Algorithm for convolution
+    cudnnConvolutionFwdAlgo_t algo;
+
+    // GPU data
+    float *dev_filter;
+    float *dev_workspace;
+    float *dev_bias;
+
+    // Other information
+    size_t dev_workspace_bytes;
+};
+
 class Conv3d : Runnable
+{
+public:
+    void run(cudnnHandle_t h,
+             cudnnTensorDescriptor_t const *inputDesc, void *input,
+             cudnnTensorDescriptor_t *outputDesc, void *output,
+             TagUnionExtraRet *extra) override;
+
+    Conv3d(std::string filterFile, std::string biasFile, cudnnActivationMode_t actMode,
+           Dims5 dims_in, Dims5 dims_filter, Dims3 padding, Dims3 stride, Dims3 dilation);
+
+    ~Conv3d()
+    {
+        cudnnDestroyTensorDescriptor(desc_in);
+        cudnnDestroyTensorDescriptor(desc_out);
+        cudnnDestroyFilterDescriptor(desc_filter);
+        cudnnDestroyConvolutionDescriptor(desc_conv);
+
+        cudaFree(dev_filter);
+        cudaFree(dev_workspace);
+    }
+
+private:
+    // Descriptors
+    cudnnTensorDescriptor_t desc_in;
+    cudnnTensorDescriptor_t desc_out;
+    cudnnFilterDescriptor_t desc_filter;
+    cudnnConvolutionDescriptor_t desc_conv;
+    cudnnActivationDescriptor_t desc_activation;
+
+    // Tensor dimensions
+    Dims5 dims_in;
+    Dims5 dims_out;
+    Dims5 dims_filter;
+
+    // Convolution parameters (padding, stride, dilation)
+    Dims3 pad;
+    Dims3 str;
+    Dims3 dil;
+
+    // Algorithm for convolution
+    cudnnConvolutionFwdAlgo_t algo;
+
+    // GPU data
+    float *dev_filter;
+    float *dev_workspace;
+
+    // Other information
+    size_t dev_workspace_bytes;
+};
+
+//*************************************************************************************************
+
+/*
+checkCUDNN(cudnnSetTensorNdDescriptor(desc_in,
+                                  CUDNN_DATA_FLOAT,
+                                  v_dim_in.size(),
+                                  v_dim_in.data(),
+                                  v_str_in.data()));
+*/
+
+class Conv2dBias : Runnable
 {
 public:
     void run(cudnnHandle_t h,
@@ -10,32 +151,24 @@ public:
              cudnnTensorDescriptor_t *outputDesc, void *output,
              TagUnionExtraRet *extra) override
     {
-        if constexpr (hasBias)
-        {
-            // y = Act( alpha1 * conv(x) + alpha2 * z + bias )
-            // z and y can alias to same buffer but x cannot overlap them
-            checkCUDNN(cudnnConvolutionBiasActivationForward(
-                h,
-                &one,
-                inDescT, input,               // conv input
-                filterDesc, dev_filter,       // conv filter
-                convDesc, algo,               // conv algo
-                dev_workspace, workspaceSize, // conv workspace
-                &zero, outDescT, output,      // z
-                biasDesc, dev_bias,           // bias
-                activDesc,                    // activation
-                outDescT, output              // output
-                ));
-        }
-        else
-        {
-            // checkCUDNN(cudnnConvolutionForward());
-            // activation
-        }
+        // y = Act( alpha1 * conv(x) + alpha2 * z + bias )
+        // z and y can alias to same buffer but x cannot overlap them
+        checkCUDNN(cudnnConvolutionBiasActivationForward(
+            h,
+            &one,
+            inDescT, input,               // conv input
+            filterDesc, dev_filter,       // conv filter
+            convDesc, algo,               // conv algo
+            dev_workspace, workspaceSize, // conv workspace
+            &zero, outDescT, output,      // z
+            biasDesc, dev_bias,           // bias
+            activDesc,                    // activation
+            outDescT, output              // output
+            ));
     }
 
     // TODO: Handle case where no bias is given by using properly sized tensor of 0.f
-    Conv3d(std::string filterFile, std::string biasFile, cudnnActivationMode_t actMode)
+    Conv2dBias(std::string filterFile, std::string biasFile, cudnnActivationMode_t actMode)
     {
         // Create Things
 
@@ -56,18 +189,15 @@ public:
         // convDesc ??
         checkCUDNN(cudnnCreateConvolutionDescriptor(&convDesc));
 
-        if constexpr (hasBias)
-        {
-            // biasDesc (gotten from filename)
-            checkCUDNN(cudnnCreateTensorDescriptor(&biasDesc));
-            // checkCUDNN(cudnnSetTensorNdDescriptor(biasDesc, CUDNN_DATA_FLOAT, ));
+        // biasDesc (gotten from filename)
+        checkCUDNN(cudnnCreateTensorDescriptor(&biasDesc));
+        // checkCUDNN(cudnnSetTensorNdDescriptor(biasDesc, CUDNN_DATA_FLOAT, ));
 
-            // dev_bias (read file and cudamalloc+cudamemcpy)
-            SizedArrayFloat biasData = readTensor2FloatBuffer(biasFile);
-            cudaMalloc(&dev_bias, biasData.count * sizeof(float));
-            cudaMemcpy(dev_bias, biasData.arr, biasData.count * sizeof(float), cudaMemcpyHostToDevice);
-            delete[] biasData.arr;
-        }
+        // dev_bias (read file and cudamalloc+cudamemcpy)
+        SizedArrayFloat biasData = readTensor2FloatBuffer(biasFile);
+        cudaMalloc(&dev_bias, biasData.count * sizeof(float));
+        cudaMemcpy(dev_bias, biasData.arr, biasData.count * sizeof(float), cudaMemcpyHostToDevice);
+        delete[] biasData.arr;
 
         // activDesc ??
         checkCUDNN(cudnnCreateActivationDescriptor(&activDesc));
@@ -82,7 +212,7 @@ public:
         // dev_workspace (cudamalloc + cudamemcpy)
     }
 
-    ~Conv3d()
+    ~Conv2dBias()
     {
         cudnnDestroyTensorDescriptor(inDescT);
         cudnnDestroyTensorDescriptor(outDescT);
@@ -91,11 +221,9 @@ public:
         cudnnDestroyActivationDescriptor(activDesc);
         cudaFree(dev_filter);
         cudaFree(dev_workspace);
-        if constexpr (hasBias)
-        {
-            cudnnDestroyTensorDescriptor(biasDesc);
-            cudaFree(dev_bias);
-        }
+
+        cudnnDestroyTensorDescriptor(biasDesc);
+        cudaFree(dev_bias);
     }
 
 private:
@@ -110,27 +238,13 @@ private:
     size_t workspaceSize;
     float *dev_workspace;
 
-    if constexpr (hasBias)
-    {
-        cudnnTensorDescriptor_t biasDesc;
-        float *dev_bias;
-    }
+    cudnnTensorDescriptor_t biasDesc;
+    float *dev_bias;
 
     cudnnActivationDescriptor_t activDesc;
     cudnnTensorDescriptor_t outDescT;
 };
 
-//*************************************************************************************************
-
-/*
-checkCUDNN(cudnnSetTensorNdDescriptor(desc_in,
-                                  CUDNN_DATA_FLOAT,
-                                  v_dim_in.size(),
-                                  v_dim_in.data(),
-                                  v_str_in.data()));
-*/
-
-template <bool hasBias>
 class Conv2d : Runnable
 {
 public:
@@ -139,28 +253,9 @@ public:
              cudnnTensorDescriptor_t *outputDesc, void *output,
              TagUnionExtraRet *extra) override
     {
-        if constexpr (hasBias)
-        {
-            // y = Act( alpha1 * conv(x) + alpha2 * z + bias )
-            // z and y can alias to same buffer but x cannot overlap them
-            checkCUDNN(cudnnConvolutionBiasActivationForward(
-                h,
-                &one,
-                inDescT, input,               // conv input
-                filterDesc, dev_filter,       // conv filter
-                convDesc, algo,               // conv algo
-                dev_workspace, workspaceSize, // conv workspace
-                &zero, outDescT, output,      // z
-                biasDesc, dev_bias,           // bias
-                activDesc,                    // activation
-                outDescT, output              // output
-                ));
-        }
-        else
-        {
-            // checkCUDNN(cudnnConvolutionForward());
-            // activation
-        }
+
+        // checkCUDNN(cudnnConvolutionForward());
+        // activation
     }
 
     // TODO: Handle case where no bias is given by using properly sized tensor of 0.f
@@ -185,19 +280,6 @@ public:
         // convDesc ??
         checkCUDNN(cudnnCreateConvolutionDescriptor(&convDesc));
 
-        if constexpr (hasBias)
-        {
-            // biasDesc (gotten from filename)
-            checkCUDNN(cudnnCreateTensorDescriptor(&biasDesc));
-            // checkCUDNN(cudnnSetTensorNdDescriptor(biasDesc, CUDNN_DATA_FLOAT, ));
-
-            // dev_bias (read file and cudamalloc+cudamemcpy)
-            SizedArrayFloat biasData = readTensor2FloatBuffer(biasFile);
-            cudaMalloc(&dev_bias, biasData.count * sizeof(float));
-            cudaMemcpy(dev_bias, biasData.arr, biasData.count * sizeof(float), cudaMemcpyHostToDevice);
-            delete[] biasData.arr;
-        }
-
         // activDesc ??
         checkCUDNN(cudnnCreateActivationDescriptor(&activDesc));
         checkCUDNN(cudnnSetActivationDescriptor(activDesc, actMode, CUDNN_NOT_PROPAGATE_NAN, MAXFLOAT));
@@ -220,11 +302,6 @@ public:
         cudnnDestroyActivationDescriptor(activDesc);
         cudaFree(dev_filter);
         cudaFree(dev_workspace);
-        if constexpr (hasBias)
-        {
-            cudnnDestroyTensorDescriptor(biasDesc);
-            cudaFree(dev_bias);
-        }
     }
 
 private:
@@ -238,12 +315,6 @@ private:
 
     size_t workspaceSize;
     float *dev_workspace;
-
-    if constexpr (hasBias)
-    {
-        cudnnTensorDescriptor_t biasDesc;
-        float *dev_bias;
-    }
 
     cudnnActivationDescriptor_t activDesc;
     cudnnTensorDescriptor_t outDescT;

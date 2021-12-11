@@ -94,5 +94,14 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+#endif
+
+#if 1
+#include "layers/conv3d.h"
+
+int main(int argc, char *argv[])
+{
+
+}
 
 #endif

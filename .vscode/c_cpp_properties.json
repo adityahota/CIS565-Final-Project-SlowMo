@@ -5,12 +5,12 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/usr/local/include/opencv4",
-                "/usr/local/cuda-11.4/targets/x86_64-linux/include"
+                "/usr/local/cuda-11.5/targets/x86_64-linux/include"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/clang",
+            "compilerPath": "/usr/local/cuda/bin/nvcc",
             "cStandard": "c11",
-            "cppStandard": "c++14",
+            "cppStandard": "c++11",
             "intelliSenseMode": "linux-clang-x64"
         }
     ],

@@ -16,7 +16,7 @@ public:
     }
 
 private:
-    Conv3d<true> deConv;
+    Conv3dBias deConv;
     Gate g;
     LReLU lr;
 };
