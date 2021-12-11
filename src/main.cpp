@@ -96,3 +96,36 @@ int main(int argc, char *argv[])
 }
 
 #endif
+
+#if 1
+#include "layers/layer_utils.h"
+int main()
+{
+    std::string fname = "tensor_bins/module.outconv.1.weight__3x64x7x7.bin";
+    auto dims = filename2dims(fname);
+    auto kern = readTensor2FloatBuffer(fname);
+    std::cout << "num dims is " << dims.dims.size() << std::endl;
+    assert(dims.dims.size() == 4);
+    for (int i = 0; i < dims.dims[0]; i++)
+    {
+        for (int j = 0; j < dims.dims[1]; j++)
+        {
+            for (int k = 0; k < dims.dims[2]; k++)
+            {
+                for (int s = 0; s < dims.dims[3]; s++)
+                {
+                    std::cout << (kern.arr)[s +
+                                            k * dims.dims[3] +
+                                            j * dims.dims[2] * dims.dims[3] +
+                                            i * dims.dims[1] * dims.dims[2] * dims.dims[3]]
+                              << " ";
+                }
+                std::cout << std::endl;
+            }
+            std::cout << std::endl;
+        }
+    }
+    free(kern.arr);
+    return 0;
+}
+#endif
