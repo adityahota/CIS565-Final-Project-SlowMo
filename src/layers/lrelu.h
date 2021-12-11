@@ -2,6 +2,8 @@
 
 #include "runnable.h"
 
+const int blockSize = 256;
+
 class LReLU : Runnable
 {
 public:
@@ -10,4 +12,7 @@ public:
              cudnnTensorDescriptor_t const *inputDesc, void *input,
              cudnnTensorDescriptor_t *outputDesc, void *output,
              TagUnionExtraRet *extra) override;
+
+private:
+    float coeff;
 };

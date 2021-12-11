@@ -13,6 +13,8 @@
 #include <stdexcept>
 #include <sstream>
 
+#define DEBUG_PRINTS
+
 typedef struct VidFrame
 { // TODO
 } VidFrame;
