@@ -2,8 +2,8 @@
 
 // #include "runnable.h"
 
-const int h_flattenTensor = 0; // todo
-const int w_flattenTensor = 0; // todo
+const int h_flattenTensor = 256; // todo
+const int w_flattenTensor = 448; // todo
 
 // operates on the raw tensor data; be sure to allocate nonoverllaping for the output
 __global__ void flattenTensor(float *input,
