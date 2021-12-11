@@ -12,6 +12,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <sstream>
+#include <stdarg.h>
 
 #define DEBUG_PRINTS
 

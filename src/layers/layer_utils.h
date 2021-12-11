@@ -126,3 +126,14 @@ SizedArrayFloat readTensor2FloatBuffer(std::string const &fName);
 
 Dims5 mkDims5(int d[5]);
 Dims3 mkDims3(int d[3]);
+
+/**
+ * @brief Returns a vector of the given params
+ *
+ * usage: variDims(5, 1, 3, 4, 256, 448) should yield vector<int>{1, 3, 4, 256, 448}
+ *
+ * @param vec_size number of dims; must match the number of params passed in afterward
+ * @param ... the values of the dimensions
+ * @return std::vector<int>
+ */
+std::vector<int> variDims(int vec_size, ...);

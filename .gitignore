@@ -7,5 +7,5 @@ testexec
 test.txt
 testLoad.txt
 testTsrLoadingExe
-.vscode/c_cpp_properties.json
-.vscode/settings.json
+.vscode/
+testVariDimsExe
