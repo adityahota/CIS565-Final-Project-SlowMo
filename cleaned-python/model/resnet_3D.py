@@ -48,7 +48,7 @@ class SEGating(nn.Module):
         return x * y
 
 class BasicBlock(nn.Module):
-    def __init__(self, inplanes, planes, stride=1, downsample=None):
+    def __init__(self, inplanes, planes, stride=1, downsample=False):
         midplanes = (inplanes * planes * 3 * 3 * 3) // (inplanes * 3 * 3 + 3 * planes)
 
         super(BasicBlock, self).__init__()
@@ -61,7 +61,8 @@ class BasicBlock(nn.Module):
         )
         self.fg = SEGating(planes) ## Feature Gating
         self.relu = nn.ReLU(inplace=True)
-        self.downsample = downsample
+        self.downsample = nn.Conv3d(inplanes, planes, kernel_size=1, stride=stride, bias=False) \
+                if downsample else None
         self.stride = stride
 
     def forward(self, x):
@@ -83,10 +84,15 @@ class VideoResNet(nn.Module):
         self.inplanes = 64
 
         self.stem = BasicStem(useBias)
-        self.layer1 = self._make_layer(64, stride=1)
-        self.layer2 = self._make_layer(128, stride=2)
-        self.layer3 = self._make_layer(256, stride=2)
-        self.layer4 = self._make_layer(512, stride=1)
+
+        self.layer1 = nn.Sequential(BasicBlock(64, 64, stride=(1,1,1), downsample=False),
+                BasicBlock(64, 64))
+        self.layer2 = nn.Sequential(BasicBlock(64, 128, stride=(1,2,2), downsample=True),
+                BasicBlock(128, 128))
+        self.layer3 = nn.Sequential(BasicBlock(128, 256, stride=(1,2,2), downsample=True),
+                BasicBlock(256, 256))
+        self.layer4 = nn.Sequential(BasicBlock(256, 512, stride=(1,1,1), downsample=True),
+                BasicBlock(512, 512))
 
 
     def forward(self, x):
@@ -96,20 +102,6 @@ class VideoResNet(nn.Module):
         x_3 = self.layer3(x_2)
         x_4 = self.layer4(x_3)
         return x_0 , x_1 , x_2 , x_3 , x_4
-
-    def _make_layer(self, planes, stride=1):
-        downsample = None
-
-        if stride != 1 or self.inplanes != planes:
-            ds_stride = (1, stride, stride)
-            downsample = nn.Conv3d(self.inplanes, planes, kernel_size=1, stride=ds_stride, bias=False)
-            stride = ds_stride
-
-        b1 = BasicBlock(self.inplanes, planes, stride, downsample)
-        self.inplanes = planes
-        b2 = BasicBlock(self.inplanes, planes)
-
-        return nn.Sequential(b1, b2)
 
 def unet_18(useBias=False):
     """
