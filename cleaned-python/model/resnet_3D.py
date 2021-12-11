@@ -25,75 +25,30 @@ class Conv3DSimple(nn.Conv3d):
 
 
 class BasicStem(nn.Sequential):
-    """The default conv-batchnorm-relu stem
-    """
+    """The default conv-batchnorm-relu stem"""
     def __init__(self):
         super().__init__(
-            nn.Conv3d(3, 64, kernel_size=(3, 7, 7), stride=(1, 2, 2),
-                padding=(1, 3, 3), bias=useBias),
-            nn.ReLU(inplace=False))
-
-
-class Conv2Plus1D(nn.Sequential):
-
-    def __init__(self,
-                 in_planes,
-                 out_planes,
-                 midplanes,
-                 stride=1,
-                 padding=1):
-        if not isinstance(stride , int):
-            temporal_stride , stride , stride = stride
-        else:
-            temporal_stride = stride
-
-        super(Conv2Plus1D, self).__init__(
-            nn.Conv3d(in_planes, midplanes, kernel_size=(1, 3, 3),
-                      stride=(1, stride, stride), padding=(0, padding, padding),
-                      bias=False),
-            nn.ReLU(inplace=True),
-            nn.Conv3d(midplanes, out_planes, kernel_size=(3, 1, 1),
-                      stride=(temporal_stride, 1, 1), padding=(padding, 0, 0),
-                      bias=False))
-
- 
-class R2Plus1dStem(nn.Sequential):
-    """R(2+1)D stem is different than the default one as it uses separated 3D convolution
-    """
-    def __init__(self):
-        super().__init__(
-            nn.Conv3d(3, 45, kernel_size=(1, 7, 7),
-                      stride=(1, 2, 2), padding=(0, 3, 3),
-                      bias=False),
-            nn.ReLU(inplace=True),
-            nn.Conv3d(45, 64, kernel_size=(3, 1, 1),
-                      stride=(1, 1, 1), padding=(1, 0, 0),
-                      bias=False),
-            nn.ReLU(inplace=True))
+            nn.Conv3d(3, 64, kernel_size=(3, 7, 7), stride=(1, 2, 2), padding=(1, 3, 3), bias=useBias),
+            nn.ReLU(inplace=False)
+        )
 
 
 class SEGating(nn.Module):
-
     def __init__(self , inplanes , reduction=16):
-
         super().__init__()
 
         self.pool = nn.AdaptiveAvgPool3d(1)
         self.attn_layer = nn.Sequential(
-            nn.Conv3d(inplanes , inplanes , kernel_size=1 , stride=1 , bias=True),
+            nn.Conv3d(inplanes, inplanes, kernel_size=1, stride=1, bias=True),
             nn.Sigmoid()
         )
         
     def forward(self , x):
-
         out = self.pool(x)
         y = self.attn_layer(out)
         return x * y
 
 class BasicBlock(nn.Module):
-
-    expansion = 1
-
     def __init__(self, inplanes, planes, conv_builder, stride=1, downsample=None):
         midplanes = (inplanes * planes * 3 * 3 * 3) // (inplanes * 3 * 3 + 3 * planes)
 
@@ -124,7 +79,6 @@ class BasicBlock(nn.Module):
         return out
 
 class VideoResNet(nn.Module):
-
     def __init__(self, block, conv_makers, layers,
                  stem, zero_init_residual=False):
         """Generic resnet video generator.
@@ -164,10 +118,10 @@ class VideoResNet(nn.Module):
     def _make_layer(self, block, conv_builder, planes, blocks, stride=1, temporal_stride=None):
         downsample = None
 
-        if stride != 1 or self.inplanes != planes * block.expansion:
+        if stride != 1 or self.inplanes != planes:
             ds_stride = (temporal_stride if temporal_stride else stride, stride, stride)
             downsample = nn.Sequential(
-                nn.Conv3d(self.inplanes, planes * block.expansion,
+                nn.Conv3d(self.inplanes, planes,
                           kernel_size=1, stride=ds_stride, bias=False),
             )
             stride = ds_stride
@@ -175,7 +129,7 @@ class VideoResNet(nn.Module):
         layers = []
         layers.append(block(self.inplanes, planes, conv_builder, stride, downsample ))
 
-        self.inplanes = planes * block.expansion
+        self.inplanes = planes
         for i in range(1, blocks):
             layers.append(block(self.inplanes, planes, conv_builder ))
 
