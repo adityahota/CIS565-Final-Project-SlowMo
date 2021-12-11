@@ -13,5 +13,5 @@ public:
     }
 
 private:
-    Conv3d l;
+    Conv3d<false> l;
 };

@@ -17,5 +17,5 @@ public:
     }
 
 private:
-    Conv3d fcLayer;
+    Conv3d<true> fcLayer;
 };

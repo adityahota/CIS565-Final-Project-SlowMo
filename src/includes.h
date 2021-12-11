@@ -11,6 +11,7 @@
 #include <list>
 #include <fstream>
 #include <stdexcept>
+#include <sstream>
 
 typedef struct VidFrame
 { // TODO

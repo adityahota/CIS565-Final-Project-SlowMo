@@ -18,7 +18,7 @@ public:
     }
 
 private:
-    Conv3d l1, l2;
+    Conv3d<false> l1, l2;
     Gate g;
     bool downsample; //?????
 };

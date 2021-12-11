@@ -59,7 +59,24 @@ typedef struct TsrDims
  * @param filename
  * @return TsrDims
  */
-TsrDims filename2dims(std::string filename);
+TsrDims filename2dims(std::string const &filename)
+{
+    TsrDims td;
+    std::vector<int> dim = std::vector<int>();
+    auto idx = filename.find("__");
+    auto subStr = filename.substr(idx + 2);
+    std::istringstream ss(subStr);
+    char c;
+    do
+    {
+        int val;
+        ss >> val;
+        dim.push_back(val);
+    } while (ss >> c, c == 'x');
+    td.dims = dim;
+    td.layout = true;
+    return td;
+}
 
 /**
  * @brief Contains both the length of the array and a pointer to the first element
@@ -84,18 +101,22 @@ typedef struct SizedArrayFloat
  * @param fName name of file
  * @return SizedArrayFloat Holds array size and pointer to data. Caller is responsible for deleting the array
  */
-SizedArrayFloat readTensor2FloatBuffer(std::string const &fName);
-// Read tensor file into the filter array
-// float *buf;
-// int len;
-// std::ifstream is;
-// is.open(kernelPath, std::ios::binary);
-// is.seekg(0, std::ios::end);
-// len = is.tellg();
-// is.seekg(0, std::ios::beg);
-// int numFloats = len / sizeof(float);
-// buf = new float[numFloats];
-// is.read((char *)buf, len);
-// cudaMalloc(&dev_filter, len);
-// cudaMemcpy(dev_filter, buf, len, cudaMemcpyHostToDevice);
-// delete buf;
+SizedArrayFloat readTensor2FloatBuffer(std::string const &fName)
+{
+    // Read tensor file into the filter array
+    float *buf;
+    int len;
+    std::ifstream is;
+    is.open(fName, std::ios::binary);
+    is.seekg(0, std::ios::end);
+    len = is.tellg();
+    is.seekg(0, std::ios::beg);
+    int numFloats = len / sizeof(float);
+    buf = new float[numFloats];
+    is.read((char *)buf, len);
+    is.close();
+    SizedArrayFloat sa;
+    sa.arr = buf;
+    sa.count = numFloats;
+    return sa;
+}

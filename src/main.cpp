@@ -1,13 +1,48 @@
-#include "includes.h"
-#include "flavr.h"
+#if 0
+
+#include <vector>
+#include <string>
+#include <sstream>
+#include <iostream>
+#include <fstream>
+
+void test_parse(std::string const &filename)
+{
+    std::vector<int> dim = std::vector<int>();
+    auto idx = filename.find("__");
+    auto subStr = filename.substr(idx + 2);
+    std::istringstream ss(subStr);
+    char c;
+    do
+    {
+        int val;
+        ss >> val;
+        dim.push_back(val);
+    } while (ss >> c, c == 'x');
+    for (auto const x : dim)
+    {
+        std::cout << x << ' ';
+    }
+    std::cout << std::endl;
+}
 
 int main()
 {
-
+    std::ifstream f("tensorNames.txt");
+    std::string line;
+    while (std::getline(f, line))
+    {
+        test_parse(line);
+    }
+    f.close();
     return 0;
 }
+#endif
 
 #if 0
+
+#include "includes.h"
+#include "flavr.h"
 
 std::vector<VidFrame> grab_vid_frames(std::string f_name)
 {

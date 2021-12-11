@@ -4,3 +4,5 @@ a.out
 .vscode/settings.json
 temp/readtensor.c
 tensor_bins/*
+testexec
+test.txt

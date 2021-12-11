@@ -16,4 +16,5 @@ public:
              TagUnionExtraRet *extra) override;
 
 private:
+    Conv3d<true> outConv;
 };

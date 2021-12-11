@@ -16,7 +16,7 @@ public:
     }
 
 private:
-    Conv3d deConv;
+    Conv3d<true> deConv;
     Gate g;
     LReLU lr;
 };
