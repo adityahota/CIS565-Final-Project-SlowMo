@@ -11,7 +11,8 @@ public:
     {
         // Do not mutate input
         // Pool cudnnPoolingForward()
-        // fcLayer.run(); conv is fully connected, bias is bias, activation is sigmoid
+        // fcLayer.run(); conv is fully connected, bias is bias, activation is ident
+        // separate sigmoid activation.run()
         // Multiply cudnnOpTensor() output = input * output of sigmoid
     }
 

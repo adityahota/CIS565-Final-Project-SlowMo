@@ -14,7 +14,7 @@ public:
         // g.run()
         // maybe downsample the initial input
         // cudnnAddTensor() input and current output to output
-        // cudnnActivationForward relu inplace on output
+        // cudnnActivationForward relu inplace on output (no convolution)
     }
 
 private:

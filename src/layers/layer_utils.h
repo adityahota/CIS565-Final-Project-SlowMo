@@ -60,3 +60,42 @@ typedef struct TsrDims
  * @return TsrDims
  */
 TsrDims filename2dims(std::string filename);
+
+/**
+ * @brief Contains both the length of the array and a pointer to the first element
+ *
+ */
+typedef struct SizedArrayFloat
+{
+    int count;
+    float *arr;
+} SizedArrayFloat;
+
+/**
+ * @brief Reads a tensor from file into array
+ *
+ * @param fName name of file
+ * @return float* Pointer to float array. Caller is responsible for deleting
+ */
+
+/**
+ * @brief Reads a tensor from file into an allocated array
+ *
+ * @param fName name of file
+ * @return SizedArrayFloat Holds array size and pointer to data. Caller is responsible for deleting the array
+ */
+SizedArrayFloat readTensor2FloatBuffer(std::string const &fName);
+// Read tensor file into the filter array
+// float *buf;
+// int len;
+// std::ifstream is;
+// is.open(kernelPath, std::ios::binary);
+// is.seekg(0, std::ios::end);
+// len = is.tellg();
+// is.seekg(0, std::ios::beg);
+// int numFloats = len / sizeof(float);
+// buf = new float[numFloats];
+// is.read((char *)buf, len);
+// cudaMalloc(&dev_filter, len);
+// cudaMemcpy(dev_filter, buf, len, cudaMemcpyHostToDevice);
+// delete buf;
