@@ -15,8 +15,8 @@ public:
      * @param extra passes out rgb averages for the ReMean step
      */
     void run(cudnnHandle_t h,
-             cudnnTensorDescriptor_t const *inputDesc, void *input,
-             cudnnTensorDescriptor_t *outputDesc, void **output,
+             cudnnTensorDescriptor_t const *inputDesc, float *input,
+             cudnnTensorDescriptor_t *outputDesc, float **output,
              TagUnionExtraRet *extra) override;
 
     UnMean(); // TODO;

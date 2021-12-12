@@ -96,10 +96,46 @@ int main(int argc, char *argv[])
 }
 #endif
 
-#if 1
-#include "layers/conv3d.h"
+#if 0
+#include <vector>
+#include <stdarg.h>
+#include <iostream>
+
+std::vector<int> variDims(int vec_size, ...)
+{
+    std::vector<int> v = std::vector<int>();
+    va_list ap;
+    va_start(ap, vec_size);
+    for (int i = 0; i < vec_size; i++)
+    {
+        int val = va_arg(ap, int);
+        v.push_back(val);
+    }
+    va_end(ap);
+    return v;
+}
+void dispVec(std::vector<int> v)
+{
+    std::cout << "num elems is " << v.size();
+    std::cout << ", ";
+    for (auto i : v)
+    {
+        std::cout << i << ", ";
+    }
+    std::cout << std::endl;
+}
 
 int main(int argc, char *argv[])
+{
+    auto a = variDims(2, 1, 12);
+    dispVec(a);
+    auto b = variDims(5, 1, 3, 4, 256, 448);
+    dispVec(b);
+    return 0;
+}
+#endif
+#if 1
+int main()
 {
     Dims5 conv1_dim_in = mkDims5(1, 3, 4, 256, 448);
     Dims3 conv1_pad = mkDims3(1, 3, 3);

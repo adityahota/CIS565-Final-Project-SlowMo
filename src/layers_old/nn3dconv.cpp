@@ -79,7 +79,7 @@ NN3dConv::NN3dConv(int N_in, int C_in, int D_in, int H_in, int W_in,
                                           v_str_out.data()));
 }
 
-void NN3dConv::setData(void *input, void *weights, void **output)
+void NN3dConv::setData(float *input, void *weights, float **output)
 {
     data_input = input;
     data_filter = weights;
@@ -173,7 +173,7 @@ void NN3dConv::run(cudnnHandle_t cudnn_handle)
     cudaFree(cudnn_workspace);
 }
 
-//NN3dConv::~NN3dConv()
+// NN3dConv::~NN3dConv()
 //{
-//    return;
-//}
+//     return;
+// }
