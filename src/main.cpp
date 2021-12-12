@@ -114,6 +114,21 @@ int main(int argc, char *argv[])
         std::cout << i << " ";
     }
     std::cout << std::endl;
+
+    Dims5 conv2_dim_in = mkDims5(1, 64, 1, 1, 1);
+    Dims3 conv2_pad = mkDims3(0, 0, 0);
+    Dims3 conv2_str = mkDims3(1, 1, 1);
+    Dims3 conv2_dil = mkDims3(1, 1, 1);
+    Conv3dBias *conv2 = new Conv3dBias("/home/aditya/Downloads/module.encoder.layer1.0.fg.attn_layer.0.weight__64x64x1x1x1.bin",
+                                       "/home/aditya/Downloads/module.encoder.layer1.0.fg.attn_layer.0.bias__64.bin",
+                                       conv2_dim_in, conv2_pad, conv2_str, conv2_dil);
+
+    out_dim = conv2->getOutputDim();
+    for (int i : out_dim.dims)
+    {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
 }
 
 #endif

@@ -53,6 +53,8 @@ public:
         cudaFree(dev_bias);
     }
 
+    Dims5 getOutputDim();
+
 private:
     // Descriptors
     cudnnTensorDescriptor_t desc_in;
