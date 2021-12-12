@@ -11,7 +11,9 @@ public:
     {
         //  l.run() no bias, activation relu
         // l.run(h, nullptr, tensIn, nullptr, tensOut, extraTag);
+        l->run(h, &inDescT, input, &outDescT, output, nullptr);
     }
+
     BStem()
     {
         int tmp1[5] = {1, 3, 4, 256, 448};
@@ -28,6 +30,13 @@ public:
                        inputDims, filterDims, paddingDims, strideDims, dilationDims);
     }
 
+    ~BStem()
+    {
+        l->~Conv3d();
+    }
+
 private:
     Conv3d *l;
+    cudnnTensorDescriptor_t inDescT;
+    cudnnTensorDescriptor_t outDescT;
 };
