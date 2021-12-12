@@ -73,3 +73,8 @@ void AvgPool3d::run(cudnnHandle_t h,
         desc_out,
         *output));
 }
+
+Dims5 AvgPool3d::getOutputDim()
+{
+    return dims_out;
+}
