@@ -2,7 +2,7 @@
 
 void ReMean::run(cudnnHandle_t h,
                  cudnnTensorDescriptor_t const *inputDesc, void *input,
-                 cudnnTensorDescriptor_t *outputDesc, void *output,
+                 cudnnTensorDescriptor_t *outputDesc, void **output,
                  TagUnionExtraRet *extra)
 {
     checkCUDNN(cudnnAddTensor(h,

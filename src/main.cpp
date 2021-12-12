@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 }
 #endif
 
-#if 1
+#if 0
 #include <vector>
 #include <stdarg.h>
 #include <iostream>
@@ -131,6 +131,25 @@ int main(int argc, char *argv[])
     dispVec(a);
     auto b = variDims(5, 1, 3, 4, 256, 448);
     dispVec(b);
+    return 0;
+}
+#endif
+#if 1
+int main()
+{
+    Dims5 conv1_dim_in = mkDims5(1, 3, 4, 256, 448);
+    Dims3 conv1_pad = mkDims3(1, 3, 3);
+    Dims3 conv1_str = mkDims3(1, 2, 2);
+    Dims3 conv1_dil = mkDims3(1, 1, 1);
+    Conv3d *conv1 = new Conv3d("/home/aditya/Downloads/module.encoder.stem.0.weight__64x3x3x7x7.bin", conv1_dim_in,
+                               conv1_pad, conv1_str, conv1_dil);
+
+    Dims5 out_dim = conv1->getOutputDim();
+    for (int i : out_dim.dims)
+    {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
 }
 
 #endif

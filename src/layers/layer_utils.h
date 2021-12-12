@@ -94,6 +94,22 @@ typedef struct Dims3
 TsrDims filename2dims(std::string const &filename);
 
 /**
+ * @brief Gives tensor dimension data by parsing filename
+ *
+ * @param filename
+ * @return Dims5
+ */
+Dims5 filename2dims5(std::string const &filename);
+
+/**
+ * @brief Gives tensor dimension data by parsing filename
+ *
+ * @param filename
+ * @return Dims4
+ */
+Dims4 filename2dims4(std::string const &filename);
+
+/**
  * @brief Contains both the length of the array and a pointer to the first element
  *
  */
@@ -126,6 +142,8 @@ SizedArrayFloat readTensor2FloatBuffer(std::string const &fName);
 
 Dims5 mkDims5(int d[5]);
 Dims3 mkDims3(int d[3]);
+Dims5 mkDims5(int a, int b, int c, int d, int e);
+Dims3 mkDims3(int a, int b, int c);
 
 /**
  * @brief Returns a vector of the given params
