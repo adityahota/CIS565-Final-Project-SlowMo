@@ -12,10 +12,14 @@ class SEGating(nn.Module):
             nn.Sigmoid()
         )
         
-    def forward(self, x):
-        out = self.pool(x)
-        y = self.attn_layer(out)
-        return x * y
+    def forward(self, x):                       #### (1,64,4,128,224) -> (1,64,4,128,224)
+        print("SEGating in:  \t", x.shape)
+        out = self.pool(x)                      #### (1,64,4,128,224) -> (1,64,1,1,1)
+        print("SEGating pool:\t", out.shape)
+        y = self.attn_layer(out)                #### (1,64,1,1,1) -> (1,64,1,1,1)
+        print("SEGating attn:\t", y.shape)
+        print("SEGating x*y: \t", (x*y).shape)
+        return x * y                            #### (1,64,4,128,224)*(1,64,1,1,1) -> (1,64,4,128,224)
 
 #####
 ##### Encoder Classes
@@ -38,12 +42,19 @@ class BasicBlock(nn.Module):
                 if downsample else None
 
     def forward(self, x):
+        print("Block in: \t", x.shape)
         out = self.conv1(x)
+        print("Block conv1: \t", out.shape)
         out = self.conv2(out)
+        print("Block conv2: \t", out.shape)
         out = self.fg(out)
+        print("Block fg: \t", out.shape)
         if self.downsample is not None:
             x = self.downsample(x)
+            print("Block downsample: \t", x.shape)
         out += x
+        print("Block out: \t", out.shape)
+        print("Block relu(out): \t", self.relu(out).shape)
         return self.relu(out)
 
 class Encoder(nn.Module):
@@ -65,11 +76,17 @@ class Encoder(nn.Module):
                 BasicBlock(512, 512, useBias=useBias))
 
     def forward(self, x):
+        print("Encoder in: ", x.shape)
         x_0 = self.stem(x)
+        print("Encoder x_0: ", x.shape)
         x_1 = self.layer1(x_0)
+        print("Encoder x_1: ", x.shape)
         x_2 = self.layer2(x_1)
+        print("Encoder x_2: ", x.shape)
         x_3 = self.layer3(x_2)
+        print("Encoder x_3: ", x.shape)
         x_4 = self.layer4(x_3)
+        print("Encoder x_4: ", x.shape)
         return x_0, x_1, x_2, x_3, x_4
 
 
@@ -108,7 +125,6 @@ class UNet_3D_3D(nn.Module):
     def __init__(self, n_inputs, n_outputs):
         super().__init__()
 
-        nf = [512 , 256 , 128 , 64]
         out_channels = 3 * n_outputs
 
         self.lrelu = nn.LeakyReLU(0.2, True)
