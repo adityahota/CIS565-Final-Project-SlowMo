@@ -2,7 +2,7 @@
 
 void UnMean::run(cudnnHandle_t h,
                  cudnnTensorDescriptor_t const *inputDesc, void *input,
-                 cudnnTensorDescriptor_t *outputDesc, void *output,
+                 cudnnTensorDescriptor_t *outputDesc, void **output,
                  TagUnionExtraRet *extra)
 {
     checkCUDNN(cudnnReduceTensor(h, tensReduceDescT,
@@ -23,5 +23,5 @@ void UnMean::run(cudnnHandle_t h,
         *extra = extras;
     }
     *outputDesc = inDescT;
-    output = input;
+    *output = input;
 }

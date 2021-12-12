@@ -116,3 +116,17 @@ Dims3 mkDims3(int a, int b, int c)
     x.dims[2] = c;
     return x;
 }
+
+std::vector<int> variDims(int vec_size, ...)
+{
+    std::vector<int> v = std::vector<int>();
+    va_list ap;
+    va_start(ap, vec_size);
+    for (int i = 0; i < vec_size; i++)
+    {
+        int val = va_arg(ap, int);
+        v.push_back(val);
+    }
+    va_end(ap);
+    return v;
+}

@@ -5,5 +5,7 @@ temp/readtensor.c
 tensor_bins/*
 testexec
 test.txt
-.vscode/c_cpp_properties.json
-.vscode/settings.json
+testLoad.txt
+testTsrLoadingExe
+.vscode/
+testVariDimsExe

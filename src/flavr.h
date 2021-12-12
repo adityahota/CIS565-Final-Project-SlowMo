@@ -28,14 +28,14 @@ public:
         cudnnTensorDescriptor_t intoUNetDesc, outOfUNetDesc, afterTailDesc, outFlavrDesc;
         TagUnionExtraRet rgbTensorBundle;
         // TODO: Copy over data and process nchw
-        unMean.run(h, nullptr, inFlavr, &intoUNetDesc, intoUNet, &rgbTensorBundle);
+        unMean.run(h, nullptr, inFlavr, &intoUNetDesc, &intoUNet, &rgbTensorBundle);
         if (!addMean.updateMeans(&rgbTensorBundle))
         {
             //! throw error and dont continue
         }
         // uNet.run(h, intoUNet, outOfUNet);
         // tail.run(h, outOfUNet, afterTail);
-        addMean.run(h, &afterTailDesc, afterTail, &outFlavrDesc, outFlavr, nullptr);
+        addMean.run(h, &afterTailDesc, afterTail, &outFlavrDesc, &outFlavr, nullptr);
         // TODO: Copy back data and process nchw
     }
 

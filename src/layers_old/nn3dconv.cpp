@@ -5,18 +5,17 @@ NN3dConv::NN3dConv(int N_in, int C_in, int D_in, int H_in, int W_in,
                    int p_D, int p_H, int p_W,
                    int s_D, int s_H, int s_W,
                    int d_D, int d_H, int d_W)
-  : dim_N_in(N_in), dim_C_in(C_in), dim_D_in(D_in), dim_H_in(H_in), dim_W_in(W_in),
-    kern_C_out(k_C_out), kern_C_in(k_C_in), kern_D(k_D), kern_H(k_H), kern_W(k_W),
-    pad_D(p_D), pad_H(p_H), pad_W(p_W),
-    str_D(s_D), str_H(s_H), str_W(s_W),
-    dil_D(d_D), dil_H(d_H), dil_W(d_W)
+    : dim_N_in(N_in), dim_C_in(C_in), dim_D_in(D_in), dim_H_in(H_in), dim_W_in(W_in),
+      kern_C_out(k_C_out), kern_C_in(k_C_in), kern_D(k_D), kern_H(k_H), kern_W(k_W),
+      pad_D(p_D), pad_H(p_H), pad_W(p_W),
+      str_D(s_D), str_H(s_H), str_W(s_W),
+      dil_D(d_D), dil_H(d_H), dil_W(d_W)
 {
     // Set data pointers to null
     data_input = nullptr;
     data_filter = nullptr;
     data_output = nullptr;
     cudnn_workspace = nullptr;
-
 
     // Create tensor, filter, and convolution descriptors
     checkCUDNN(cudnnCreateTensorDescriptor(&desc_in));
@@ -80,7 +79,7 @@ NN3dConv::NN3dConv(int N_in, int C_in, int D_in, int H_in, int W_in,
                                           v_str_out.data()));
 }
 
-void NN3dConv::setData(void *input, void *weights, void *output)
+void NN3dConv::setData(void *input, void *weights, void **output)
 {
     data_input = input;
     data_filter = weights;
@@ -102,22 +101,22 @@ int NN3dConv::getOutputC()
 int NN3dConv::getOutputD()
 {
     // return dim_D_in;
-//    int top = dim_D_in + 2 * pad_D - dil_D * (kern_D - 1) - 1;
-//    return top / str_D + 1;
+    //    int top = dim_D_in + 2 * pad_D - dil_D * (kern_D - 1) - 1;
+    //    return top / str_D + 1;
     return dim_D_out;
 }
 
 int NN3dConv::getOutputH()
 {
-//    int top = dim_H_in + 2 * pad_H - dil_H * (kern_H - 1) - 1;
-//    return top / str_H + 1;
+    //    int top = dim_H_in + 2 * pad_H - dil_H * (kern_H - 1) - 1;
+    //    return top / str_H + 1;
     return dim_H_out;
 }
 
 int NN3dConv::getOutputW()
 {
-//    int top = dim_W_in + 2 * pad_W - dil_W * (kern_W - 1) - 1;
-//    return top / str_W + 1;
+    //    int top = dim_W_in + 2 * pad_W - dil_W * (kern_W - 1) - 1;
+    //    return top / str_W + 1;
     return dim_W_out;
 }
 

@@ -23,8 +23,6 @@ private:
     cudnnFilterDescriptor_t desc_kern;
     cudnnConvolutionDescriptor_t desc_conv;
 
-
-
 public:
     NN3dConv(int N_in, int C_in, int D_in, int H_in, int W_in,
              int k_C_out, int k_C_in, int k_D, int k_H, int k_W,
@@ -35,7 +33,7 @@ public:
 
     void run(cudnnHandle_t cudnn_handle);
 
-    void setData(void *input, void *weights, void *output);
+    void setData(void *input, void *weights, void **output);
 
     int getOutputN();
     int getOutputC();
@@ -43,5 +41,4 @@ public:
     int getOutputH();
     int getOutputW();
     int getOutputSize();
-
 };
