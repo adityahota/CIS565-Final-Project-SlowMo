@@ -147,7 +147,7 @@ int main()
     Dims3 conv1_pad = mkDims3(1, 3, 3);
     Dims3 conv1_str = mkDims3(1, 2, 2);
     Dims3 conv1_dil = mkDims3(1, 1, 1);
-    Conv3d *conv1 = new Conv3d("/home/aditya/Downloads/module.encoder.stem.0.weight__64x3x3x7x7.bin", conv1_dim_in,
+    Conv3d *conv1 = new Conv3d("tensor_bins/module.encoder.stem.0.weight__64x3x3x7x7.bin", conv1_dim_in,
                                conv1_pad, conv1_str, conv1_dil);
 
     Dims5 out_dim = conv1->getOutputDim();
@@ -161,8 +161,8 @@ int main()
     Dims3 conv2_pad = mkDims3(0, 0, 0);
     Dims3 conv2_str = mkDims3(1, 1, 1);
     Dims3 conv2_dil = mkDims3(1, 1, 1);
-    Conv3dBias *conv2 = new Conv3dBias("/home/aditya/Downloads/module.encoder.layer1.0.fg.attn_layer.0.weight__64x64x1x1x1.bin",
-                                       "/home/aditya/Downloads/module.encoder.layer1.0.fg.attn_layer.0.bias__64.bin",
+    Conv3dBias *conv2 = new Conv3dBias("tensor_bins/module.encoder.layer1.0.fg.attn_layer.0.weight__64x64x1x1x1.bin",
+                                       "tensor_bins/module.encoder.layer1.0.fg.attn_layer.0.bias__64.bin",
                                        conv2_dim_in, conv2_pad, conv2_str, conv2_dil);
 
     out_dim = conv2->getOutputDim();

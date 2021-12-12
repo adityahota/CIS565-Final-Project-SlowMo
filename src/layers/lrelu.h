@@ -40,3 +40,26 @@ public:
 private:
     float coeff;
 };
+
+/**
+ * @brief Class for sigmoid activation; runs in place
+ *
+ */
+class Sigmoid : Runnable
+{
+public:
+    /**
+     * @brief Concrete run for in-place Sigmoid that wraps a CUDA kernel
+     *
+     * @param h -
+     * @param inputDesc USED; PASS THIS IN
+     * @param input
+     * @param outputDesc unused
+     * @param output Points back to the input as this operation is in-place
+     * @param extra unused
+     */
+    void run(cudnnHandle_t h,
+             cudnnTensorDescriptor_t const *inputDesc, float *input,
+             cudnnTensorDescriptor_t *outputDesc, float **output,
+             TagUnionExtraRet *extra) override;
+};

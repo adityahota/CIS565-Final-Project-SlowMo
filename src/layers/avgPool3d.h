@@ -12,7 +12,7 @@ public:
      * @param inputDesc ignored; descriptors set at construction time
      * @param input input float tensor; passed in; self never owns
      * @param outputDesc ignored; descriptors set at construction time
-     * @param output tensor to store output; passed in; self mallocs, caller responsible for freeing
+     * @param output tensor to store output; passed in; pool mallocs, caller responsible for freeing
      * @param extra ignored
      */
     void run(cudnnHandle_t h,
