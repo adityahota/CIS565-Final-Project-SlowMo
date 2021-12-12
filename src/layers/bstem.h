@@ -25,7 +25,9 @@ public:
              TagUnionExtraRet *extra) override
     {
         //  l.run() no bias, activation relu
-        float **tmp;
+        float boo = 0;
+        float *boo_loc = &boo;
+        float **tmp = &boo_loc;
         l->run(h, &inDescT, input, &outDescT, output, nullptr);
         relu->run(h, &outDescT, *output, nullptr, tmp, nullptr);
         //? does this set output correctly?

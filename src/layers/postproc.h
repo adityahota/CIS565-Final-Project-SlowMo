@@ -1,4 +1,5 @@
 #pragma once
+#if 0
 
 // #include "runnable.h"
 
@@ -60,3 +61,6 @@ private:
     cudnnTensorDescriptor_t ffOutDesc;
     float *preRefPad;
 };
+
+#endif
+

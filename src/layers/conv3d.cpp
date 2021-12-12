@@ -136,8 +136,8 @@ Dims5 Conv3d::getOutputDim()
     return dims_out;
 }
 
-Conv3dBias::Conv3dBias(std::string filterFile, std::string biasFile,
-                       Dims5 dims_in, Dims3 padding, Dims3 stride, Dims3 dilation)
+Conv3dBias::Conv3dBias(std::string filterFile, std::string biasFile, Dims5 dims_in,
+                       Dims3 padding, Dims3 stride, Dims3 dilation)
 {
     // Assign all dimensional information
     this->dims_in = dims_in;
@@ -239,8 +239,8 @@ Conv3dBias::Conv3dBias(std::string filterFile, std::string biasFile,
         zero));
 }
 
-void Conv3dBias::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, void *input,
-                     cudnnTensorDescriptor_t *outputDesc, void **output, TagUnionExtraRet *extra)
+void Conv3dBias::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, float *input,
+                     cudnnTensorDescriptor_t *outputDesc, float **output, TagUnionExtraRet *extra)
 {
     // Allocate space on GPU for output tensor
     int num_elements_out = dims_out.dims[0] * dims_out.dims[1] * dims_out.dims[2] * dims_out.dims[3] * dims_out.dims[4];

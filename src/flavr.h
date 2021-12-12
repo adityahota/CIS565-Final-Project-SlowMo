@@ -43,9 +43,9 @@ private:
     cudnnHandle_t h;
     UnMean unMean;
     UNet uNet;
-    PostProc tail;
+    // PostProc tail;
     ReMean addMean;
-    void *inFlavr, *intoUNet, *outOfUNet, *afterTail, *outFlavr;
+    float *inFlavr, *intoUNet, *outOfUNet, *afterTail, *outFlavr;
 };
 
 #if 0

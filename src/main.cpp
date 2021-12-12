@@ -134,7 +134,13 @@ int main(int argc, char *argv[])
     return 0;
 }
 #endif
+
 #if 1
+#include <iostream>
+#include "includes.h"
+#include "flavr.h"
+#include "layers/conv3d.h"
+
 int main()
 {
     Dims5 conv1_dim_in = mkDims5(1, 3, 4, 256, 448);
