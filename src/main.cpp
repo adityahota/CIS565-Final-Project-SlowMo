@@ -233,11 +233,11 @@ int main()
     std::cout << "read in; count is " << tens.count << std::endl;
     float *dev_tens;
     cudaMalloc(&dev_tens, tens.count * sizeof(float));
-    cudaMemcpy(dev_tens, tens.arr, tens.count, cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_tens, tens.arr, tens.count * sizeof(float), cudaMemcpyHostToDevice);
     cudnnTensorDescriptor_t tensDesc;
     checkCUDNN(cudnnCreateTensorDescriptor(&tensDesc));
     int dimsTens[] = {64, 3, 3, 7, 7};
-    int strideTens[] = {1, 1, 1, 1, 1};
+    int strideTens[] = {3 * 3 * 7 * 7, 3 * 7 * 7, 7 * 7, 7, 1};
     checkCUDNN(cudnnSetTensorNdDescriptor(tensDesc,
                                           CUDNN_DATA_FLOAT, 5,
                                           dimsTens, strideTens));
@@ -247,11 +247,11 @@ int main()
     cudnnHandle_t h;
     checkCUDNN(cudnnCreate(&h));
     sig->run(h, &tensDesc, dev_tens, nullptr, &fooo, nullptr);
-    cudaMemcpy(tens.arr, dev_tens, tens.count, cudaMemcpyDeviceToHost);
+    cudaMemcpy(tens.arr, fooo, tens.count * sizeof(float), cudaMemcpyDeviceToHost);
 
     // FILE *f = fopen("tmpTen.bin", "wb");
     // fwrite(tens.arr, sizeof(float), tens.count, f);
-    FILE *f = fopen("tmpTens.txt", "w");
+    FILE *f = fopen("stemSigmoidCudnn.txt", "w");
     for (int i = 0; i < tens.count; i++)
     {
         fprintf(f, "%f\n", tens.arr[i]);
