@@ -248,8 +248,14 @@ int main()
     checkCUDNN(cudnnCreate(&h));
     sig->run(h, &tensDesc, dev_tens, nullptr, &fooo, nullptr);
     cudaMemcpy(tens.arr, dev_tens, tens.count, cudaMemcpyDeviceToHost);
-    FILE *f = fopen("tmpTen.bin", "wb");
-    fwrite(tens.arr, sizeof(float), tens.count, f);
+
+    // FILE *f = fopen("tmpTen.bin", "wb");
+    // fwrite(tens.arr, sizeof(float), tens.count, f);
+    FILE *f = fopen("tmpTens.txt", "w");
+    for (int i = 0; i < tens.count; i++)
+    {
+        fprintf(f, "%f\n", tens.arr[i]);
+    }
     std::cout << "done writing" << std::endl;
     fclose(f);
     cudnnDestroy(h);
