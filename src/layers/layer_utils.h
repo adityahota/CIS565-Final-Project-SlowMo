@@ -155,3 +155,19 @@ Dims3 mkDims3(int a, int b, int c);
  * @return std::vector<int>
  */
 std::vector<int> variDims(int vec_size, ...);
+
+/**
+ * @brief Feed him tensor dims, he gives u stride
+ *
+ * @param dims
+ * @return Dims5
+ */
+Dims5 dim5Stride(Dims5 dims);
+
+/**
+ * @brief returns multiplication of dims
+ *
+ * @param d
+ * @return int
+ */
+int dims5ToSize(Dims5 d);

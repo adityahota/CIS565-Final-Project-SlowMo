@@ -130,3 +130,19 @@ std::vector<int> variDims(int vec_size, ...)
     va_end(ap);
     return v;
 }
+
+Dims5 dim5Stride(Dims5 dim)
+{
+    Dims5 d;
+    d.dims[4] = 1;
+    d.dims[3] = dim.dims[4] * 1;
+    d.dims[2] = dim.dims[3] * dim.dims[4] * 1;
+    d.dims[1] = dim.dims[2] * dim.dims[3] * dim.dims[4] * 1;
+    d.dims[0] = dim.dims[1] * dim.dims[2] * dim.dims[3] * dim.dims[4] * 1;
+    return d;
+}
+
+int dims5ToSize(Dims5 d)
+{
+    return d.dims[0] * d.dims[1] * d.dims[2] * d.dims[3] * d.dims[4];
+}

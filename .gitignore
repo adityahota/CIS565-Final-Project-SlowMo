@@ -11,3 +11,13 @@ testLoad.txt
 testTsrLoadingExe
 .vscode/
 testVariDimsExe
+diff_out.txt
+diff.txt
+stemRaw.txt
+stemSigmoidCUDA.txt
+stemSigmoidCudnn.txt
+stemSigmoidTorch.bin
+stemSigmoidTorch.txt
+tmpTen.bin
+tmpTens2
+tmpTensCUDNN.txt

@@ -26,4 +26,6 @@ public:
     float one = 1.f;     // Used for alpha and beta scaling parameters
     float zero = 0.f;    // Used for alpha and beta scaling parameters
     float negOne = -1.f; // Used for alpha and beta scaling parameters
+    Dims3 unitDims3 = mkDims3(1, 1, 1);
+    Dims3 zeroDims3 = mkDims3(0, 0, 0);
 };

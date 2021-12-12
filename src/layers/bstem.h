@@ -1,4 +1,5 @@
 #pragma once
+
 #include "conv3d.h"
 #include "lrelu.h"
 
@@ -29,7 +30,7 @@ public:
         float *boo_loc = &boo;
         float **tmp = &boo_loc;
         l->run(h, &inDescT, input, &outDescT, output, nullptr);
-        relu->run(h, &outDescT, *output, nullptr, tmp, nullptr);
+        relu->run(reluSize, *output);
         //? does this set output correctly?
     }
 
@@ -48,6 +49,7 @@ public:
         l = new Conv3d("module.encoder.stem.0.weight__64x3x3x7x7.bin",
                        inputDims, paddingDims, strideDims, dilationDims);
         relu = new LReLU();
+        reluSize = dims5ToSize(l->getOutputDim());
     }
 
     ~BStem()
@@ -62,4 +64,5 @@ private:
     LReLU *relu;
     cudnnTensorDescriptor_t inDescT;
     cudnnTensorDescriptor_t outDescT;
+    int reluSize;
 };

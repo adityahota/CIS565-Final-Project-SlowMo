@@ -2,7 +2,7 @@
 
 #include "runnable.h"
 
-#define CONV3D_TENSOR_KERN_DIM 5
+#define Conv3d_TENSOR_KERN_DIM 5
 #define CONV2D_TENSOR_KERN_DIM 4
 
 class AvgPool3d : Runnable

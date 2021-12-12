@@ -31,14 +31,14 @@ Conv3d::Conv3d(std::string filterFile, Dims5 dims_in,
     checkCUDNN(cudnnSetTensorNdDescriptor(
         desc_in,
         CUDNN_DATA_FLOAT,
-        CONV3D_TENSOR_KERN_DIM,
+        Conv3d_TENSOR_KERN_DIM,
         this->dims_in.dims,
         data_in_stride));
 
     // Set convolution descriptor
     checkCUDNN(cudnnSetConvolutionNdDescriptor(
         desc_conv,
-        CONV3D_TENSOR_KERN_DIM - 2,
+        Conv3d_TENSOR_KERN_DIM - 2,
         this->pad.dims,
         this->str.dims,
         this->dil.dims,
@@ -50,7 +50,7 @@ Conv3d::Conv3d(std::string filterFile, Dims5 dims_in,
         desc_filter,
         CUDNN_DATA_FLOAT,
         CUDNN_TENSOR_NCHW,
-        CONV3D_TENSOR_KERN_DIM,
+        Conv3d_TENSOR_KERN_DIM,
         this->dims_filter.dims));
 
     // Get output tensor dimensions
@@ -58,7 +58,7 @@ Conv3d::Conv3d(std::string filterFile, Dims5 dims_in,
         desc_conv,
         desc_in,
         desc_filter,
-        CONV3D_TENSOR_KERN_DIM,
+        Conv3d_TENSOR_KERN_DIM,
         this->dims_out.dims));
 
     // Set output descriptor
@@ -70,7 +70,7 @@ Conv3d::Conv3d(std::string filterFile, Dims5 dims_in,
     checkCUDNN(cudnnSetTensorNdDescriptor(
         desc_out,
         CUDNN_DATA_FLOAT,
-        CONV3D_TENSOR_KERN_DIM,
+        Conv3d_TENSOR_KERN_DIM,
         this->dims_out.dims,
         data_out_stride));
 
@@ -170,14 +170,14 @@ Conv3dBias::Conv3dBias(std::string filterFile, std::string biasFile, Dims5 dims_
     checkCUDNN(cudnnSetTensorNdDescriptor(
         desc_in,
         CUDNN_DATA_FLOAT,
-        CONV3D_TENSOR_KERN_DIM,
+        Conv3d_TENSOR_KERN_DIM,
         this->dims_in.dims,
         data_in_stride));
 
     // Set convolution descriptor
     checkCUDNN(cudnnSetConvolutionNdDescriptor(
         desc_conv,
-        CONV3D_TENSOR_KERN_DIM - 2,
+        Conv3d_TENSOR_KERN_DIM - 2,
         this->pad.dims,
         this->str.dims,
         this->dil.dims,
@@ -189,7 +189,7 @@ Conv3dBias::Conv3dBias(std::string filterFile, std::string biasFile, Dims5 dims_
         desc_filter,
         CUDNN_DATA_FLOAT,
         CUDNN_TENSOR_NCHW,
-        CONV3D_TENSOR_KERN_DIM,
+        Conv3d_TENSOR_KERN_DIM,
         this->dims_filter.dims));
 
     // Get output tensor dimensions
@@ -197,7 +197,7 @@ Conv3dBias::Conv3dBias(std::string filterFile, std::string biasFile, Dims5 dims_
         desc_conv,
         desc_in,
         desc_filter,
-        CONV3D_TENSOR_KERN_DIM,
+        Conv3d_TENSOR_KERN_DIM,
         this->dims_out.dims));
 
     // Set output descriptor
@@ -209,7 +209,7 @@ Conv3dBias::Conv3dBias(std::string filterFile, std::string biasFile, Dims5 dims_
     checkCUDNN(cudnnSetTensorNdDescriptor(
         desc_out,
         CUDNN_DATA_FLOAT,
-        CONV3D_TENSOR_KERN_DIM,
+        Conv3d_TENSOR_KERN_DIM,
         this->dims_out.dims,
         data_out_stride));
 
@@ -217,7 +217,7 @@ Conv3dBias::Conv3dBias(std::string filterFile, std::string biasFile, Dims5 dims_
     checkCUDNN(cudnnSetTensorNdDescriptor(
         desc_bias,
         CUDNN_DATA_FLOAT,
-        CONV3D_TENSOR_KERN_DIM,
+        Conv3d_TENSOR_KERN_DIM,
         this->dims_out.dims,
         data_out_stride));
 

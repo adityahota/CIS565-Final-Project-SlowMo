@@ -1,7 +1,7 @@
 #pragma once
 #include "runnable.h"
 
-#define CONV3D_TENSOR_KERN_DIM 5
+#define Conv3d_TENSOR_KERN_DIM 5
 #define CONV2D_TENSOR_KERN_DIM 4
 
 class Conv3dBias : Runnable
@@ -65,6 +65,16 @@ private:
 class Conv3d : Runnable
 {
 public:
+    /**
+     * @brief
+     *
+     * @param h
+     * @param inputDesc
+     * @param input
+     * @param outputDesc
+     * @param output Passed in; self malloc's; caller responsible for freeing
+     * @param extra
+     */
     void run(cudnnHandle_t h,
              cudnnTensorDescriptor_t const *inputDesc, float *input,
              cudnnTensorDescriptor_t *outputDesc, float **output,

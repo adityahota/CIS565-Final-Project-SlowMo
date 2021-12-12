@@ -59,7 +59,7 @@ public:
         cudaMalloc(&dev_input, tensLen * sizeof(float));
         cudaMalloc(&dev_output, tensLen * sizeof(float));
         cudaMalloc(&dev_scratch, tensLen * sizeof(float));
-        checkCUDAError("init conv3dTestWrapper");
+        checkCUDAError("init Conv3dTestWrapper");
     }
     ~Conv3dTestWrapper()
     {

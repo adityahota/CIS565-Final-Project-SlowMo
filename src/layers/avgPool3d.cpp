@@ -19,7 +19,7 @@ AvgPool3d::AvgPool3d(Dims5 dims_in, Dims3 win, Dims3 pad, Dims3 str)
     checkCUDNN(cudnnSetTensorNdDescriptor(
         desc_in,
         CUDNN_DATA_FLOAT,
-        CONV3D_TENSOR_KERN_DIM,
+        Conv3d_TENSOR_KERN_DIM,
         this->dims_in.dims,
         data_in_stride));
 
@@ -28,7 +28,7 @@ AvgPool3d::AvgPool3d(Dims5 dims_in, Dims3 win, Dims3 pad, Dims3 str)
         desc_pool,
         CUDNN_POOLING_AVERAGE_COUNT_EXCLUDE_PADDING,
         CUDNN_NOT_PROPAGATE_NAN,
-        CONV3D_TENSOR_KERN_DIM - 2,
+        Conv3d_TENSOR_KERN_DIM - 2,
         win.dims,
         pad.dims,
         str.dims));
@@ -37,7 +37,7 @@ AvgPool3d::AvgPool3d(Dims5 dims_in, Dims3 win, Dims3 pad, Dims3 str)
     checkCUDNN(cudnnGetPoolingNdForwardOutputDim(
         desc_pool,
         desc_in,
-        CONV3D_TENSOR_KERN_DIM,
+        Conv3d_TENSOR_KERN_DIM,
         dims_out.dims));
 
     // Set output tensor descriptor
@@ -47,7 +47,7 @@ AvgPool3d::AvgPool3d(Dims5 dims_in, Dims3 win, Dims3 pad, Dims3 str)
     checkCUDNN(cudnnSetTensorNdDescriptor(
         desc_out,
         CUDNN_DATA_FLOAT,
-        CONV3D_TENSOR_KERN_DIM,
+        Conv3d_TENSOR_KERN_DIM,
         dims_out.dims,
         data_out_stride));
 }
