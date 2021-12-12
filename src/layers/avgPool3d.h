@@ -2,6 +2,9 @@
 
 #include "runnable.h"
 
+#define CONV3D_TENSOR_KERN_DIM 5
+#define CONV2D_TENSOR_KERN_DIM 4
+
 class AvgPool3d : Runnable
 {
 public:
@@ -18,19 +21,31 @@ public:
     void run(cudnnHandle_t h,
              cudnnTensorDescriptor_t const *inputDesc, float *input,
              cudnnTensorDescriptor_t *outputDesc, float **output,
-             TagUnionExtraRet *extra) override
+             TagUnionExtraRet *extra) override;
+
+    AvgPool3d(Dims5 dims_in, Dims3 win, Dims3 pad, Dims3 str);
+
+    ~AvgPool3d()
     {
-        cudaMalloc(&dev_out, size * sizeof(float));
-        *output = dev_out;
-        checkCUDNN(cudnnPoolingForward(h, poolDesc,
-                                       &one, inDescT, input,
-                                       &zero, outDescT, output));
+        cudnnDestroyTensorDescriptor(desc_in);
+        cudnnDestroyTensorDescriptor(desc_out);
+        cudnnDestroyPoolingDescriptor(desc_pool);
     }
 
+    Dims5 getOutputDim();
+
 private:
-    int size;
-    float *dev_out;
-    cudnnPoolingDescriptor_t poolDesc;
-    cudnnTensorDescriptor_t inDescT;
-    cudnnTensorDescriptor_t outDescT;
+    // Descriptors
+    cudnnTensorDescriptor_t desc_in;
+    cudnnTensorDescriptor_t desc_out;
+    cudnnPoolingDescriptor_t desc_pool;
+
+    // Tensor dimensions
+    Dims5 dims_in;
+    Dims5 dims_out;
+
+    // Pooling parameters (window, padding, stride)
+    Dims3 win;
+    Dims3 pad;
+    Dims3 str;
 };
