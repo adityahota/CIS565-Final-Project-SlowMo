@@ -1,16 +1,21 @@
 #pragma once
 #include "layer_utils.h"
+
+/**
+ * @brief Abstract class that implements a run function
+ *
+ */
 class Runnable
 {
 public:
     /**
      * @brief Runs the underlying NN Layers
      *
-     * @param h cudnnHandle passed to each
-     * @param inputDesc tensor descriptor associated with input,
-     * @param input start of the input tensor data
-     * @param outputDesc tensor descriptor associated with output !!Should run make this or should it be premade?
-     * @param output start of the ouput tensor data
+     * @param h handle
+     * @param inputDesc generally ignored; try to set descriptors at construction time
+     * @param input input float tensor; passed in; self never owns; preallocated
+     * @param outputDesc generally ignored; try to set descriptors at construction time
+     * @param output tensor to store output; pointer passed in, self mallocs and passes forward
      * @param extra if any extra information needs to be passed along
      */
     virtual void run(cudnnHandle_t h,
