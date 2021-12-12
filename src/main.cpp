@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 }
 #endif
 
-#if 1
+#if 0
 #include <iostream>
 #include "includes.h"
 #include "flavr.h"
@@ -219,4 +219,86 @@ int main()
     free(kern.arr);
     return 0;
 }
+#endif
+
+#if 1
+#include <iostream>
+#include "includes.h"
+#include "flavr.h"
+#include "layers/conv3d.h"
+
+int main()
+{
+    auto tens = readTensor2FloatBuffer("tensor_bins/module.encoder.stem.0.weight__64x3x3x7x7.bin");
+    std::cout << "read in; count is " << tens.count << std::endl;
+    float *dev_tens;
+    cudaMalloc(&dev_tens, tens.count * sizeof(float));
+    cudaMemcpy(dev_tens, tens.arr, tens.count, cudaMemcpyHostToDevice);
+    cudnnTensorDescriptor_t tensDesc;
+    checkCUDNN(cudnnCreateTensorDescriptor(&tensDesc));
+    int dimsTens[] = {64, 3, 3, 7, 7};
+    int strideTens[] = {1, 1, 1, 1, 1};
+    checkCUDNN(cudnnSetTensorNdDescriptor(tensDesc,
+                                          CUDNN_DATA_FLOAT, 5,
+                                          dimsTens, strideTens));
+    auto sig = new Sigmoid();
+    float foo = 0.f;
+    float *fooo = &foo;
+    cudnnHandle_t h;
+    checkCUDNN(cudnnCreate(&h));
+    sig->run(h, &tensDesc, dev_tens, nullptr, &fooo, nullptr);
+    cudaMemcpy(tens.arr, dev_tens, tens.count, cudaMemcpyDeviceToHost);
+    FILE *f = fopen("tmpTen.bin", "wb");
+    fwrite(tens.arr, sizeof(float), tens.count, f);
+    std::cout << "done writing" << std::endl;
+    fclose(f);
+    cudnnDestroy(h);
+    delete sig;
+    cudnnDestroyTensorDescriptor(tensDesc);
+    cudaFree(dev_tens);
+    delete[] tens.arr;
+    // Dims5 conv1_dim_in = mkDims5(1, 3, 4, 256, 448);
+    // Dims3 conv1_pad = mkDims3(1, 3, 3);
+    // Dims3 conv1_str = mkDims3(1, 2, 2);
+    // Dims3 conv1_dil = mkDims3(1, 1, 1);
+    // Conv3d *conv1 = new Conv3d("tensor_bins/module.encoder.stem.0.weight__64x3x3x7x7.bin", conv1_dim_in,
+    //                            conv1_pad, conv1_str, conv1_dil);
+
+    // Dims5 out_dim = conv1->getOutputDim();
+    // for (int i : out_dim.dims)
+    // {
+    //     std::cout << i << " ";
+    // }
+    // std::cout << std::endl;
+
+    // // Dims5 conv2_dim_in = mkDims5(1, 64, 1, 1, 1);
+    // // Dims3 conv2_pad = mkDims3(0, 0, 0);
+    // // Dims3 conv2_str = mkDims3(1, 1, 1);
+    // // Dims3 conv2_dil = mkDims3(1, 1, 1);
+    // // Conv3dBias *conv2 = new Conv3dBias("/home/aditya/Downloads/module.encoder.layer1.0.fg.attn_layer.0.weight__64x64x1x1x1.bin",
+    // //                                    "/home/aditya/Downloads/module.encoder.layer1.0.fg.attn_layer.0.bias__64.bin",
+    // //                                    conv2_dim_in, conv2_pad, conv2_str, conv2_dil);
+
+    // // out_dim = conv2->getOutputDim();
+    // // for (int i : out_dim.dims)
+    // // {
+    // //     std::cout << i << " ";
+    // // }
+    // // std::cout << std::endl;
+
+    // // Dims5 pool1_dim_in = mkDims5(1, 64, 4, 256, 448);
+    // // Dims3 pool1_win = mkDims3(GET_DIM5_D(pool1_dim_in), GET_DIM5_H(pool1_dim_in), GET_DIM5_W(pool1_dim_in));
+    // // Dims3 pool1_str = pool1_win;
+    // // Dims3 pool1_pad = mkDims3(0, 0, 0);
+    // // AvgPool3d *pool1 = new AvgPool3d(pool1_dim_in, pool1_win, pool1_pad, pool1_str);
+
+    // // out_dim = pool1->getOutputDim();
+    // // for (int i : out_dim.dims)
+    // // {
+    // //     std::cout << i << " ";
+    // // }
+    // // std::cout << std::endl;
+    return 0;
+}
+
 #endif
