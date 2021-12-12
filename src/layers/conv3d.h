@@ -9,7 +9,7 @@ class Conv3dBias : Runnable
 public:
     void run(cudnnHandle_t h,
              cudnnTensorDescriptor_t const *inputDesc, void *input,
-             cudnnTensorDescriptor_t *outputDesc, void *output,
+             cudnnTensorDescriptor_t *outputDesc, void **output,
              TagUnionExtraRet *extra) override;
     // {
     //     if constexpr (hasBias)
@@ -36,8 +36,8 @@ public:
     //     }
     // }
 
-    Conv3dBias(std::string filterFile, std::string biasFile, cudnnActivationMode_t actMode,
-               Dims5 dims_in, Dims5 dims_filter, Dims3 padding, Dims3 stride, Dims3 dilation);
+    Conv3dBias(std::string filterFile, std::string biasFile, Dims5 dims_in,
+               Dims3 padding, Dims3 stride, Dims3 dilation);
 
     ~Conv3dBias()
     {
@@ -46,6 +46,7 @@ public:
         cudnnDestroyFilterDescriptor(desc_filter);
         cudnnDestroyConvolutionDescriptor(desc_conv);
         cudnnDestroyTensorDescriptor(desc_bias);
+        cudnnDestroyActivationDescriptor(desc_activation);
 
         cudaFree(dev_filter);
         cudaFree(dev_workspace);
@@ -59,6 +60,7 @@ private:
     cudnnFilterDescriptor_t desc_filter;
     cudnnConvolutionDescriptor_t desc_conv;
     cudnnTensorDescriptor_t desc_bias;
+    cudnnActivationDescriptor_t desc_activation;
 
     // Tensor dimensions
     Dims5 dims_in;
@@ -87,11 +89,11 @@ class Conv3d : Runnable
 public:
     void run(cudnnHandle_t h,
              cudnnTensorDescriptor_t const *inputDesc, void *input,
-             cudnnTensorDescriptor_t *outputDesc, void *output,
+             cudnnTensorDescriptor_t *outputDesc, void **output,
              TagUnionExtraRet *extra) override;
 
-    Conv3d(std::string filterFile, std::string biasFile, cudnnActivationMode_t actMode,
-           Dims5 dims_in, Dims5 dims_filter, Dims3 padding, Dims3 stride, Dims3 dilation);
+    Conv3d(std::string filterFile, Dims5 dims_in,
+           Dims3 padding, Dims3 stride, Dims3 dilation);
 
     ~Conv3d()
     {
@@ -104,13 +106,14 @@ public:
         cudaFree(dev_workspace);
     }
 
+    Dims5 getOutputDim();
+
 private:
     // Descriptors
     cudnnTensorDescriptor_t desc_in;
     cudnnTensorDescriptor_t desc_out;
     cudnnFilterDescriptor_t desc_filter;
     cudnnConvolutionDescriptor_t desc_conv;
-    cudnnActivationDescriptor_t desc_activation;
 
     // Tensor dimensions
     Dims5 dims_in;
@@ -148,7 +151,7 @@ class Conv2dBias : Runnable
 public:
     void run(cudnnHandle_t h,
              cudnnTensorDescriptor_t const *inputDesc, void *input,
-             cudnnTensorDescriptor_t *outputDesc, void *output,
+             cudnnTensorDescriptor_t *outputDesc, void **output,
              TagUnionExtraRet *extra) override
     {
         // y = Act( alpha1 * conv(x) + alpha2 * z + bias )
@@ -250,7 +253,7 @@ class Conv2d : Runnable
 public:
     void run(cudnnHandle_t h,
              cudnnTensorDescriptor_t const *inputDesc, void *input,
-             cudnnTensorDescriptor_t *outputDesc, void *output,
+             cudnnTensorDescriptor_t *outputDesc, void **output,
              TagUnionExtraRet *extra) override
     {
 

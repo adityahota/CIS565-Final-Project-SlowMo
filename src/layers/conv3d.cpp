@@ -1,14 +1,20 @@
 #include "conv3d.h"
 
-Conv3d::Conv3d(std::string filterFile, std::string biasFile, cudnnActivationMode_t actMode,
-               Dims5 dims_in, Dims5 dims_filter, Dims3 padding, Dims3 stride, Dims3 dilation)
+Conv3d::Conv3d(std::string filterFile, Dims5 dims_in,
+               Dims3 padding, Dims3 stride, Dims3 dilation)
 {
     // Assign all dimensional information
     this->dims_in = dims_in;
-    this->dims_filter = dims_filter;
     this->pad = padding;
     this->str = stride;
     this->dil = dilation;
+
+    // Obtain filter dimensions from file
+    // TsrDims tsr_dims_filter = filename2dims(filterFile);
+    this->dims_filter = filename2dims5(filterFile);
+
+    // Load filter from file
+    SizedArrayFloat filter_weights = readTensor2FloatBuffer(filterFile);
 
     // Create tensor, filter, and convolution descriptors
     checkCUDNN(cudnnCreateTensorDescriptor(&desc_in));
@@ -66,34 +72,66 @@ Conv3d::Conv3d(std::string filterFile, std::string biasFile, cudnnActivationMode
         CUDNN_DATA_FLOAT,
         CONV3D_TENSOR_KERN_DIM,
         this->dims_out.dims,
-        nullptr));
+        data_out_stride));
 
-    // // dev_filter (read file and cudamalloc+cudamemcpy)
-    // SizedArrayFloat filtData = readTensor2FloatBuffer(filterFile);
-    // cudaMalloc(&dev_filter, filtData.count * sizeof(float));
-    // cudaMemcpy(dev_filter, filtData.arr, filtData.count * sizeof(float), cudaMemcpyHostToDevice);
-    // delete[] filtData.arr;
-
-    // if constexpr (hasBias)
-    // {
-    //     // // biasDesc (gotten from filename)
-    //     // checkCUDNN(cudnnCreateTensorDescriptor(&biasDesc));
-    //     // // checkCUDNN(cudnnSetTensorNdDescriptor(biasDesc, CUDNN_DATA_FLOAT, ));
-
-    //     // // dev_bias (read file and cudamalloc+cudamemcpy)
-    //     // SizedArrayFloat biasData = readTensor2FloatBuffer(biasFile);
-    //     // cudaMalloc(&dev_bias, biasData.count * sizeof(float));
-    //     // cudaMemcpy(dev_bias, biasData.arr, biasData.count * sizeof(float), cudaMemcpyHostToDevice);
-    //     // delete[] biasData.arr;
-    // }
-
-    // algo ??
-    // workspaceSize (use cudnn to calc)
-    // dev_workspace (cudamalloc + cudamemcpy)
+    // Allocate space on GPU for filter and delete from host
+    cudaMalloc(&dev_filter, filter_weights.count * sizeof(float));
+    cudaMemcpy(dev_filter, filter_weights.arr, filter_weights.count * sizeof(float), cudaMemcpyHostToDevice);
+    delete[] filter_weights.arr;
 }
 
 void Conv3d::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, void *input,
-                 cudnnTensorDescriptor_t *outputDesc, void *output, TagUnionExtraRet *extra)
+                 cudnnTensorDescriptor_t *outputDesc, void **output, TagUnionExtraRet *extra)
 {
+    // Allocate space on GPU for output tensor
+    int num_elements_out = dims_out.dims[0] * dims_out.dims[1] * dims_out.dims[2] * dims_out.dims[3] * dims_out.dims[4];
+    cudaMalloc(output, num_elements_out * sizeof(float));
+    cudaMemset(*output, 0, num_elements_out * sizeof(float));
+
+    // Initialize the algorithm
+    cudnnConvolutionFwdAlgoPerf_t algorithm_perf;
+    int returned_algorithms = 0;
+    checkCUDNN(cudnnGetConvolutionForwardAlgorithm_v7(
+        h,
+        desc_in,
+        desc_filter,
+        desc_conv,
+        desc_out,
+        1,
+        &returned_algorithms,
+        &algorithm_perf));
+
+    // Allocate workspace
+    checkCUDNN(cudnnGetConvolutionForwardWorkspaceSize(
+        h,
+        desc_in,
+        desc_filter,
+        desc_conv,
+        desc_out,
+        algorithm_perf.algo,
+        &dev_workspace_bytes));
+    cudaMalloc(&dev_workspace, dev_workspace_bytes);
+
+    // Run the convolution
+    checkCUDNN(cudnnConvolutionForward(
+        h,
+        &one,
+        desc_in,
+        input,
+        desc_filter,
+        dev_filter,
+        desc_conv,
+        algorithm_perf.algo,
+        dev_workspace,
+        dev_workspace_bytes,
+        &zero,
+        desc_out,
+        *output));
+
     return;
+}
+
+Dims5 Conv3d::getOutputDim()
+{
+    return dims_out;
 }
