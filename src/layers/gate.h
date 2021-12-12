@@ -27,8 +27,6 @@ public:
         // Do not mutate input
         pool->run(h, nullptr, input, nullptr, &postPool, nullptr);
         fcLayer->run(h, nullptr, postPool, nullptr, &postFC, nullptr);
-        //! Sigmoid
-        // checkCUDNN(cudnnActivationForward(h, ));
         float flo = 0.f;
         float *floo = &flo;
         s->run(h, &postFCDesc, postFC, nullptr, &floo, nullptr);
@@ -42,6 +40,28 @@ public:
     {
         cudaFree(postFC);
         cudaFree(postPool);
+        // fcLayer->~Conv3dBias();
+        // pool->~AvgPool3d();
+        delete pool;
+        delete fcLayer;
+        delete s;
+        checkCUDNN(cudnnDestroyTensorDescriptor(postFCDesc));
+        checkCUDNN(cudnnDestroyTensorDescriptor(inDescT));
+        checkCUDNN(cudnnDestroyTensorDescriptor(outDescT));
+        checkCUDNN(cudnnDestroyOpTensorDescriptor(opDesc));
+    }
+    Gate(Dims5 poolDimsIn, Dims3 poolWIn, Dims3 poolPadIn, Dims3 poolStrideIn,
+         std::string fcFilter, std::string fcBias,
+         Dims5 filtDimsIn, Dims3 filtPad, Dims3 filtStride, Dims3 filtDilation)
+    {
+        pool = new AvgPool3d(poolDimsIn, poolWIn, poolPadIn, poolStrideIn);
+        fcLayer = new Conv3dBias(fcFilter, fcBias, filtDimsIn, filtPad, filtStride, filtDilation);
+        s = new Sigmoid();
+        checkCUDNN(cudnnCreateOpTensorDescriptor(&opDesc));
+        checkCUDNN(cudnnSetOpTensorDescriptor(opDesc, CUDNN_OP_TENSOR_MUL, CUDNN_DATA_FLOAT, CUDNN_PROPAGATE_NAN));
+        cudnnCreateTensorDescriptor(&inDescT);
+        cudnnCreateTensorDescriptor(&postFCDesc);
+        cudnnCreateTensorDescriptor(&outDescT);
     }
 
 private:
