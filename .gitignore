@@ -1,2 +1,13 @@
 # pytorch saved state is too big for github
 *.pth
+/Debug/
+/img/*
+a.out
+temp/readtensor.c
+tensor_bins/*
+testexec
+test.txt
+testLoad.txt
+testTsrLoadingExe
+.vscode/
+testVariDimsExe

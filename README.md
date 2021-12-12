@@ -9,3 +9,9 @@ We are attempting to increase the frame rate of videos using the proposed model 
 
 <img width="555" alt="FLAVR" src="https://user-images.githubusercontent.com/12516225/144300538-59f3b06e-97c2-46ae-8395-61522818ec74.png">
 Figure 1. Sampling procedure of FLAVR network, obtained from FLAVR paper
+CIS565 Final Project
+
+
+```
+
+```
