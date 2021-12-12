@@ -135,9 +135,14 @@ class UNet_3D_3D(nn.Module):
 #        images[1].cpu().numpy().tofile("frame1.bin")
 #        images[2].cpu().numpy().tofile("frame2.bin")
 #        images[3].cpu().numpy().tofile("frame3.bin")
+        print(images[0].shape)
+        print(images[1].shape)
+        print(images[2].shape)
+        print(images[3].shape)
 
         images = torch.stack(images, dim=2)
 #        images.cpu().numpy().tofile("frames.bin")
+        print(images.shape)
 
         ## Batch mean normalization works slightly better than global mean normalization
         ## https://github.com/myungsub/CAIN
@@ -147,11 +152,11 @@ class UNet_3D_3D(nn.Module):
 
         x_0 , x_1 , x_2 , x_3 , x_4 = self.encoder(images)
 
-        x_0.cpu().numpy().tofile("x_0.bin")
-        x_1.cpu().numpy().tofile("x_1.bin")
-        x_2.cpu().numpy().tofile("x_2.bin")
-        x_3.cpu().numpy().tofile("x_3.bin")
-        x_4.cpu().numpy().tofile("x_4.bin")
+#        x_0.cpu().numpy().tofile("x_0.bin")
+#        x_1.cpu().numpy().tofile("x_1.bin")
+#        x_2.cpu().numpy().tofile("x_2.bin")
+#        x_3.cpu().numpy().tofile("x_3.bin")
+#        x_4.cpu().numpy().tofile("x_4.bin")
 
         dx_3 = self.lrelu(self.decoder[0](x_4))
         dx_3 = torch.cat([dx_3 , x_3] , dim=1)
@@ -176,6 +181,8 @@ class UNet_3D_3D(nn.Module):
         out = [o+mean_ for o in out]
  
         #out[0].cpu().numpy().tofile("out.bin")
+
+        print(out[0].shape)
 
         return out
 

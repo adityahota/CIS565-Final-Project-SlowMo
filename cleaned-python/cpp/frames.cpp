@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "opencv/core.hpp"
+#include "opencv2/core.hpp"
 #include "opencv2/video.hpp"
 #include "opencv2/imgproc.hpp"
 #include "opencv2/videoio.hpp"
@@ -13,16 +13,16 @@ int main(int argc, char **argv)
 		fprintf(stderr, "expected one file argument\n");
 		return 1;
 	}
-	VideoCapture cptr(argv[1]);
+	cv::VideoCapture cptr(argv[1]);
 	
 	if (!cptr.isOpened())
-		CV_Error(CV_StsError, "failed to open file");
+		exit(5);
 
-	Mat frame;
-	cap >> frame;
+	cv::Mat frame;
+	cptr >> frame;
 
 	printf("channels: %d\tdepth: %d\telemSize: %d\telemSize1: %d\n",
 			frame.channels(), frame.depth(), frame.elemSize(),
-			frame.elemSize1())
+			frame.elemSize1());
 	
 }

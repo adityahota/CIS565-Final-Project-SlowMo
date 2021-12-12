@@ -108,7 +108,7 @@ def video_to_tensor(video):
 
 def video_transform(videoTensor , downscale=1):
     
-    T , H , W = videoTensor.size(0), videoTensor.size(1) , videoTensor.size(2)
+    T, H, W = videoTensor.size(0), videoTensor.size(1) , videoTensor.size(2)
     downscale = int(downscale * 8)
     resizes = 8*(H//downscale) , 8*(W//downscale)
     transforms = torchvision.transforms.Compose([ToTensorVideo() , Resize(resizes)])
