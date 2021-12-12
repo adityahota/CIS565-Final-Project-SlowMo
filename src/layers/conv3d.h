@@ -8,8 +8,8 @@ class Conv3dBias : Runnable
 {
 public:
     void run(cudnnHandle_t h,
-             cudnnTensorDescriptor_t const *inputDesc, void *input,
-             cudnnTensorDescriptor_t *outputDesc, void **output,
+             cudnnTensorDescriptor_t const *inputDesc, float *input,
+             cudnnTensorDescriptor_t *outputDesc, float **output,
              TagUnionExtraRet *extra) override;
     // {
     //     if constexpr (hasBias)
@@ -88,8 +88,8 @@ class Conv3d : Runnable
 {
 public:
     void run(cudnnHandle_t h,
-             cudnnTensorDescriptor_t const *inputDesc, void *input,
-             cudnnTensorDescriptor_t *outputDesc, void **output,
+             cudnnTensorDescriptor_t const *inputDesc, float *input,
+             cudnnTensorDescriptor_t *outputDesc, float **output,
              TagUnionExtraRet *extra) override;
 
     Conv3d(std::string filterFile, Dims5 dims_in,
@@ -150,8 +150,8 @@ class Conv2dBias : Runnable
 {
 public:
     void run(cudnnHandle_t h,
-             cudnnTensorDescriptor_t const *inputDesc, void *input,
-             cudnnTensorDescriptor_t *outputDesc, void **output,
+             cudnnTensorDescriptor_t const *inputDesc, float *input,
+             cudnnTensorDescriptor_t *outputDesc, float **output,
              TagUnionExtraRet *extra) override
     {
         // y = Act( alpha1 * conv(x) + alpha2 * z + bias )
@@ -252,8 +252,8 @@ class Conv2d : Runnable
 {
 public:
     void run(cudnnHandle_t h,
-             cudnnTensorDescriptor_t const *inputDesc, void *input,
-             cudnnTensorDescriptor_t *outputDesc, void **output,
+             cudnnTensorDescriptor_t const *inputDesc, float *input,
+             cudnnTensorDescriptor_t *outputDesc, float **output,
              TagUnionExtraRet *extra) override
     {
 

@@ -2,6 +2,10 @@
 #include "conv3d.h"
 #include "avgPool3d.h"
 
+/**
+ * @brief Class for SEGate: AvgPool FCLayer Sigmoid ProductWithInput
+ *
+ */
 class Gate : Runnable
 {
 public:
@@ -16,14 +20,15 @@ public:
      * @param extra ignored
      */
     void run(cudnnHandle_t h,
-             cudnnTensorDescriptor_t const *inputDesc, void *input,
-             cudnnTensorDescriptor_t *outputDesc, void **output,
+             cudnnTensorDescriptor_t const *inputDesc, float *input,
+             cudnnTensorDescriptor_t *outputDesc, float **output,
              TagUnionExtraRet *extra) override
     {
         // Do not mutate input
-        pool.run(h, nullptr, input, nullptr, postPool, nullptr);
-        fcLayer.run(h, nullptr, postPool, nullptr, postFC, nullptr);
+        pool->run(h, nullptr, input, nullptr, &postPool, nullptr);
+        fcLayer->run(h, nullptr, postPool, nullptr, &postFC, nullptr);
         // Multiply cudnnOpTensor() output = input * output of sigmoid
+        //! SIGMOID
         checkCUDNN(cudnnOpTensor(h,
                                  opDesc,
                                  &one, inDescT, input,
@@ -32,8 +37,8 @@ public:
     }
 
 private:
-    AvgPool3d pool;
-    Conv3dBias fcLayer; // conv is fully connected, bias is bias, activation is sigmoid
+    AvgPool3d *pool;
+    Conv3dBias *fcLayer; // conv is fully connected, bias is bias, activation is sigmoid
     float *postPool;
     float *postFC;
     cudnnOpTensorDescriptor_t opDesc;

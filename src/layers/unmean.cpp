@@ -1,8 +1,8 @@
 #include "unmean.h"
 
 void UnMean::run(cudnnHandle_t h,
-                 cudnnTensorDescriptor_t const *inputDesc, void *input,
-                 cudnnTensorDescriptor_t *outputDesc, void **output,
+                 cudnnTensorDescriptor_t const *inputDesc, float *input,
+                 cudnnTensorDescriptor_t *outputDesc, float **output,
                  TagUnionExtraRet *extra)
 {
     checkCUDNN(cudnnReduceTensor(h, tensReduceDescT,

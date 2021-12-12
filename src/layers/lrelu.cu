@@ -11,15 +11,15 @@ __global__ void lReluKern(int n, float coeff, float *ptr)
 }
 
 void LReLU::run(cudnnHandle_t h,
-                cudnnTensorDescriptor_t const *inputDesc, void *input,
-                cudnnTensorDescriptor_t *outputDesc, void **output,
+                cudnnTensorDescriptor_t const *inputDesc, float *input,
+                cudnnTensorDescriptor_t *outputDesc, float **output,
                 TagUnionExtraRet *extra)
 {
-    *outputDesc = *inputDesc;
     *output = input;
     size_t numElem = 0;
     checkCUDNN(cudnnGetTensorSizeInBytes(*inputDesc, &numElem));
     numElem /= sizeof(float);
     int numBlocks = (numElem + blockSize - 1) / blockSize;
     lReluKern<<<numBlocks, blockSize>>>(numElem, coeff, (float *)input);
+    cudaDeviceSynchronize();
 }

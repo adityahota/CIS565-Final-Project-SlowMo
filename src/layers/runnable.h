@@ -15,15 +15,15 @@ public:
      * @param inputDesc generally ignored; try to set descriptors at construction time
      * @param input input float tensor; passed in; self never owns; preallocated
      * @param outputDesc generally ignored; try to set descriptors at construction time
-     * @param output tensor to store output; pointer passed in, self mallocs and passes forward
+     * @param output tensor to store output; &pointer passed in, self mallocs and passes forward or sets *output to input if in place
      * @param extra if any extra information needs to be passed along
      */
     virtual void run(cudnnHandle_t h,
-                     cudnnTensorDescriptor_t const *inputDesc, void *input,
-                     cudnnTensorDescriptor_t *outputDesc, void **output,
+                     cudnnTensorDescriptor_t const *inputDesc, float *input,
+                     cudnnTensorDescriptor_t *outputDesc, float **output,
                      TagUnionExtraRet *extra) = 0;
 
-    float one = 1.f;
-    float zero = 0.f;
-    float negOne = -1.f;
+    float one = 1.f;     // Used for alpha and beta scaling parameters
+    float zero = 0.f;    // Used for alpha and beta scaling parameters
+    float negOne = -1.f; // Used for alpha and beta scaling parameters
 };

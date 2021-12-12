@@ -33,7 +33,7 @@ public:
 
     void run(cudnnHandle_t cudnn_handle);
 
-    void setData(void *input, void *weights, void **output);
+    void setData(float *input, void *weights, float **output);
 
     int getOutputN();
     int getOutputC();

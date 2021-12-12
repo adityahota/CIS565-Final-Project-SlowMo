@@ -80,8 +80,8 @@ Conv3d::Conv3d(std::string filterFile, Dims5 dims_in,
     delete[] filter_weights.arr;
 }
 
-void Conv3d::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, void *input,
-                 cudnnTensorDescriptor_t *outputDesc, void **output, TagUnionExtraRet *extra)
+void Conv3d::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, float *input,
+                 cudnnTensorDescriptor_t *outputDesc, float **output, TagUnionExtraRet *extra)
 {
     // Allocate space on GPU for output tensor
     int num_elements_out = dims_out.dims[0] * dims_out.dims[1] * dims_out.dims[2] * dims_out.dims[3] * dims_out.dims[4];
