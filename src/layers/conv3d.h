@@ -11,30 +11,6 @@ public:
              cudnnTensorDescriptor_t const *inputDesc, float *input,
              cudnnTensorDescriptor_t *outputDesc, float **output,
              TagUnionExtraRet *extra) override;
-    // {
-    //     if constexpr (hasBias)
-    //     {
-    //         // y = Act( alpha1 * conv(x) + alpha2 * z + bias )
-    //         // z and y can alias to same buffer but x cannot overlap them
-    //         checkCUDNN(cudnnConvolutionBiasActivationForward(
-    //             h,
-    //             &one,
-    //             inDescT, input,               // conv input
-    //             filterDesc, dev_filter,       // conv filter
-    //             convDesc, algo,               // conv algo
-    //             dev_workspace, workspaceSize, // conv workspace
-    //             &zero, outDescT, output,      // z
-    //             biasDesc, dev_bias,           // bias
-    //             activDesc,                    // activation
-    //             outDescT, output              // output
-    //             ));
-    //     }
-    //     else
-    //     {
-    //         // checkCUDNN(cudnnConvolutionForward());
-    //         // activation
-    //     }
-    // }
 
     Conv3dBias(std::string filterFile, std::string biasFile, Dims5 dims_in,
                Dims3 padding, Dims3 stride, Dims3 dilation);
