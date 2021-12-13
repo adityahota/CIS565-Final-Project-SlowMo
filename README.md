@@ -5,36 +5,36 @@
 
 Original
 
-https://user-images.githubusercontent.com/12516225/145783989-634f80ab-49ef-4bb9-88c8-56cf3374bfe4.mp4
+![Original](./visuals/squirrel_slowed.gif)
 
 
-Interpolated
+Interpolated 2x
 
-https://user-images.githubusercontent.com/12516225/145784020-86b2e2c9-6f78-4852-8ff5-c53045ca8d80.mp4
-
-
----
-
-Original
-
-https://user-images.githubusercontent.com/12516225/145784504-0312773d-c93a-4899-840d-7e64d310ae2c.mp4
-
-
-Interpolated
-
-https://user-images.githubusercontent.com/12516225/145784537-1c83a0dd-427f-4a01-a083-a7081f38cb2f.mp4
+![Interpolated](./visuals/squirrel_2x.gif)
 
 
 ---
 
 Original
 
-https://user-images.githubusercontent.com/12516225/145784811-1fedb3a7-8e20-417a-b2c2-edc5a3ffd16b.mp4
+![Original](./visuals/ladybug_slowed.gif)
+
+
+Interpolated 2x
+
+![Interpolated](./visuals/ladybug_2x.gif)
+
+
+---
+
+Original
+
+![Original](./visuals/flower_slowed.gif)
 
 
 Interpolated
 
-https://user-images.githubusercontent.com/12516225/145784853-f88c9aff-7892-47b1-b489-a7c14f429b8c.mp4
+![Interpolated](./visuals/flower_2x.gif)
 
 
 
