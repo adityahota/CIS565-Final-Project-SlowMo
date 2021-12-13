@@ -73,6 +73,7 @@ void BBlock::run(cudnnHandle_t h,
 
     if (downsampleFlag)
     {
+        // checkCUDAError("cuda mallo bblock downsampl");
         conv1_conv->run(h, nullptr, input, nullptr, &postConv1, nullptr);
         relu->run(relu1Size, postConv1);
         conv2_conv->run(h, nullptr, postConv1, nullptr, &postConv2, nullptr);
@@ -86,22 +87,27 @@ void BBlock::run(cudnnHandle_t h,
     }
     else
     {
+        // checkCUDAError("cuda bblcok");
         conv1_conv->run(h, nullptr, input, nullptr, &postConv1, nullptr);
         std::cout << "Finished conv1" << std::endl;
+        // checkCUDAError("cuda mallo block conv1run post");
 
         relu->run(relu1Size, postConv1);
         std::cout << "Finished relu1" << std::endl;
 
         conv2_conv->run(h, nullptr, postConv1, nullptr, &postConv2, nullptr);
         std::cout << "Finished conv2" << std::endl;
+        // checkCUDAError("cuda bblock post conv2");
 
         g->run(h, nullptr, postConv2, nullptr, &postGate, nullptr);
         std::cout << "Finished gate" << std::endl;
+        // checkCUDAError("cuda bblock post gate");
 
         cudnnAddTensor(h,
                        &one, postGateDesc, postGate,
                        &one, inDescT, input); // A is the output so far, c is initial input
         std::cout << "Finished add" << std::endl;
+        // checkCUDAError("cuda bblock post add");
 
         relu->run(relu2Size, input);
         *output = input;

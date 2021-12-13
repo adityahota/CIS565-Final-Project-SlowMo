@@ -67,18 +67,20 @@ int main()
     printDims5(layer1_block1->getOutputDims());
 
     // Run encoder stem
+    // checkCUDAError("cuda main stem");
     float *dev_output_stem;
     stem->run(h, nullptr, dev_input_frames, nullptr, &dev_output_stem, nullptr);
 
     // Run layer 1
     //      0: Basic Block
+    // checkCUDAError("cuda main basic block 0");
     float *dev_output_layer1_block0;
     layer1_block0->run(h, nullptr, dev_output_stem, nullptr, &dev_output_layer1_block0, nullptr);
 
     //      1: Basic Block
+    // checkCUDAError("cuda main basic block 1");
     float *dev_output_layer1_block1;
-     layer1_block1->run(h, nullptr, dev_output_layer1_block0, nullptr, &dev_output_layer1_block1, nullptr);
-
+    layer1_block1->run(h, nullptr, dev_output_layer1_block0, nullptr, &dev_output_layer1_block1, nullptr);
 
     // Copy layer 1 data back to the user
     int output_elements = dims5ToSize(layer1_block0->getOutputDims());
