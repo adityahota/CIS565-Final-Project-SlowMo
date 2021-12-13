@@ -38,18 +38,24 @@ void Gate::run(cudnnHandle_t h,
 {
     // Run pooling and store output in postPool (allocated by pooling layer)
     pool->run(h, nullptr, input, nullptr, &postPool, nullptr);
+    // checkCUDAError("cuda gate postrun");
 
     // Run the FC layer (Conv3d) and store output in postFC (allocated by Conv3d layer)
     fcLayer->run(h, nullptr, postPool, nullptr, &postFC, nullptr);
+    // checkCUDAError("cuda gate post fc");
 
     // Run the Sigmoid layer (data is mutated in place)
     s->run(sigmoidSize, postFC);
+    // checkCUDAError("cuda gate post sigmoid");
+
     // C = op( alpha1 * A, alpha2 * B ) + beta * C
     checkCUDNN(cudnnOpTensor(h,
                              opDesc,
                              &one, multiplyDesc, input,
                              &one, postFCDesc, postFC,
-                             &zero, multiplyDesc, &dev_outBuf)); // Multiply cudnnOpTensor() output = input * output of sigmoid
+                             &zero, multiplyDesc, dev_outBuf)); // Multiply cudnnOpTensor() output = input * output of sigmoid
+    // checkCUDAError("cuda gate post multiply");
+
     *output = dev_outBuf;
 }
 

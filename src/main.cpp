@@ -5,13 +5,21 @@
 #include "layers/bstem.h"
 #include "layers/bblock.h"
 
+void dumpTensor2Bin(char *fName, int size, float *t)
+{
+    FILE *f = fopen(fName, "wb");
+    fwrite(t, size, sizeof(float), f);
+    fclose(f);
+    std::cout << "written to file" << std::endl;
+}
+
 int main()
 {
     cudaSetDevice(0);
     cudnnHandle_t h;
     checkCUDNN(cudnnCreate(&h));
 
-    std::string input_frames_file = "/home/aditya/Documents/Development/cis565/Final-Project/CUDA-Convolution2D/example-frames/frames_post__1x3x4x256x448.bin";
+    std::string input_frames_file = "example-frames/frames_post__1x3x4x256x448.bin";
 
     // Read stacked input size
     Dims5 input_frames_dims5 = filename2dims5(input_frames_file);
@@ -59,20 +67,23 @@ int main()
     printDims5(layer1_block1->getOutputDims());
 
     // Run encoder stem
+    // checkCUDAError("cuda main stem");
     float *dev_output_stem;
     stem->run(h, nullptr, dev_input_frames, nullptr, &dev_output_stem, nullptr);
 
     // Run layer 1
     //      0: Basic Block
+    // checkCUDAError("cuda main basic block 0");
     float *dev_output_layer1_block0;
     layer1_block0->run(h, nullptr, dev_output_stem, nullptr, &dev_output_layer1_block0, nullptr);
 
     //      1: Basic Block
+    // checkCUDAError("cuda main basic block 1");
     float *dev_output_layer1_block1;
     layer1_block1->run(h, nullptr, dev_output_layer1_block0, nullptr, &dev_output_layer1_block1, nullptr);
 
     // Copy layer 1 data back to the user
-    int output_elements = dims5ToSize(layer1_block1->getOutputDims());
+    int output_elements = dims5ToSize(layer1_block0->getOutputDims());
     float *host_output = new float[output_elements];
     cudaMemcpy(host_output, dev_output_layer1_block1, output_elements * sizeof(float), cudaMemcpyDeviceToHost);
 
@@ -85,6 +96,8 @@ int main()
     cudaFree(dev_output_layer1_block0);
     cudaFree(dev_output_layer1_block1);
     delete[] host_output;
+
+    dumpTensor2Bin("temp/main_out.bin", output_elements, host_output);
 
     std::cerr << "Exiting..." << std::endl;
     return 0;
