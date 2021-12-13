@@ -3,6 +3,7 @@
 ## CIS 565 Fall 2021
 ### Team 03: Aditya Hota, Richard Chen, Kaan Erdogmus
 
+
 ## Introduction
 
 It is said that a picture is worth a thousand words. 
@@ -41,33 +42,40 @@ NVidia has libraries that accelerate such tasks by running them on the GPU. cuBL
 
 ## FLAVR
 
+<img width="555" alt="FLAVR" src="https://user-images.githubusercontent.com/12516225/144300538-59f3b06e-97c2-46ae-8395-61522818ec74.png">
+Figure 1. Sampling procedure of FLAVR network, obtained from FLAVR paper
+CIS565 Final Project
+
+![](visuals/flavr_actual_architecture.png)
+
 One of the key features of FLAVR for frame interpolation is in its very name: Flow Agnostic. 
 
 According to the paper, many try to solve the problem using bidirectional optical flow between adjacent video frames. However, occlusions and nonlinear motion are weaknesses to that approach. 
 
-By contrast, this method uses space-time convolutions 
+By contrast, this method uses space-time convolutions and learned weights and biases in order to predict the intermediate motion. And it is intermediate motion since the model takes in 4 frames and interpolates the frames in between 2 and 3. For example, at 2x interpolation, if given frames 0 through 3, a frame 1.5 would be added. 
+
+By using spatiotemporal convolutions, they remove the need to explicitly account for optical flow, and this simpler model results in faster inference speeds. 
+
+## Our Model
+
+Image | Layers from Our Model
+------|----------------
+![](interpolated/interpolated_2x_single_frame_x0_x1.jpg) | x0, x1
 
 ## Performance
 
 ## Conclusions
 
 ## Other
+* Floating point math is not commutative; often our values had the least significant figure slightly off making it impossible to diff or cmp against the known tensor, to say nothing of -ffast-math or possible hardware specific fixed function trigonometric functions
+* 5d tensors, necessary to use 3d spacetime convolutions, seem to be second-class citizens when it comes to cuDNN compared to 4d tensors
+* 
 
 
 
-Machine Learning!
-GPUs!
 
 
-We are attempting to increase the frame rate of videos using the proposed model in the paper, in hopes of making it easier to render ray-traced movies. By using a fraction of the frames needed to achieve a high frame rate, rendering time for videos will be reduced.
-
-<img width="555" alt="FLAVR" src="https://user-images.githubusercontent.com/12516225/144300538-59f3b06e-97c2-46ae-8395-61522818ec74.png">
-Figure 1. Sampling procedure of FLAVR network, obtained from FLAVR paper
-CIS565 Final Project
-
-
-
-This Specific
+<!-- This Specific
     3d Convolutions
     network architecture
 General
@@ -80,4 +88,4 @@ Woes
 0  1  2  3  4  5  6  7  <-frame number
 1  0  1  0  1  0  1  0  <-keep
          1              <-interpolate
-```
+``` -->
