@@ -1,3 +1,4 @@
+import os
 import torch
 import torch.nn as nn
 import time
@@ -134,25 +135,28 @@ class UNet_3D_3D(nn.Module):
         )         
 
     def forward(self, images):
+        _, _, H, W = images[0].shape
+        print(H, W)
         images = torch.stack(images, dim=2)
 
         ## Batch mean normalization works slightly better than global mean normalization
         ## https://github.com/myungsub/CAIN
         mean_ = images.mean(2, keepdim=True).mean(3, keepdim=True).mean(4,keepdim=True)
         images = images-mean_ 
-#        images.cpu().numpy().tofile("frames_post.bin")
+        images.cpu().numpy().tofile("encoder_input.bin")
 
-        x_0 , x_1, x_2 , x_3 , x_4 = self.encoder(images)
+#        x_0 , x_1, x_2 , x_3 , x_4 = self.encoder(images)
+        os.system("CUDA-Convolution2D encoder_input.bin")
 
-#        x_0 = torch.Tensor(np.fromfile("../x0_cudnn.bin", dtype=np.float32).reshape(1,64,4,128,224)).cuda()
+        x_0 = torch.Tensor(np.fromfile("x0_cudnn.bin", dtype=np.float32).reshape(1,64,4,H/2,W/2)).cuda()
 #        print("GOT IT: ", x_0.shape)
-#        x_1 = torch.Tensor(np.fromfile("../x1_cudnn.bin", dtype=np.float32).reshape(1,64,4,128,224)).cuda()
+        x_1 = torch.Tensor(np.fromfile("x1_cudnn.bin", dtype=np.float32).reshape(1,64,4,H/2,W/2)).cuda()
 #        print("GOT IT: ", x_1.shape)
-#        x_2 = torch.Tensor(np.fromfile("../x2_cudnn.bin", dtype=np.float32).reshape(1,128,4,64,112)).cuda()
+        x_2 = torch.Tensor(np.fromfile("x2_cudnn.bin", dtype=np.float32).reshape(1,128,4,H/4,W/4)).cuda()
 #        print("GOT IT: ", x_2.shape)
-#        x_3 = torch.Tensor(np.fromfile("../x3_cudnn.bin", dtype=np.float32).reshape(1,256,4,32,56)).cuda()
+        x_3 = torch.Tensor(np.fromfile("x3_cudnn.bin", dtype=np.float32).reshape(1,256,4,H/8,W/8)).cuda()
 #        print("GOT IT: ", x_3.shape)
-#        x_4 = torch.Tensor(np.fromfile("../x4_cudnn.bin", dtype=np.float32).reshape(1,512,4,32,56)).cuda()
+        x_4 = torch.Tensor(np.fromfile("x4_cudnn.bin", dtype=np.float32).reshape(1,512,4,H/8,W/8)).cuda()
 #        print("GOT IT: ", x_4.shape)
 
 

@@ -125,8 +125,6 @@ else:
 
 print("video tensor is ", videoTensor.shape)
 idxs = torch.Tensor(range(len(videoTensor))).type(torch.long).view(1,-1).unfold(1,size=nbr_frame,step=1).squeeze(0)
-print(idxs)
-print(idxs.shape)
 videoTensor , resizes = video_transform(videoTensor, 1)#args.downscale)
 print("Video tensor shape is " , videoTensor.shape)
 
