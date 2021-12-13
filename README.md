@@ -52,9 +52,13 @@ NVidia has libraries that accelerate such tasks by running them on the GPU. cuBL
 Figure 1. Sampling procedure of FLAVR network, obtained from FLAVR paper
 CIS565 Final Project
 
+---
+
 ![](visuals/flavr_actual_architecture.png)
 
 Figure 2. A deeper look into the architecture of the FLAVR network
+
+---
 
 One of the key features of FLAVR for frame interpolation is in its very name: Flow Agnostic. 
 
@@ -65,6 +69,15 @@ By contrast, this method uses space-time convolutions and learned weights and bi
 By using spatiotemporal convolutions, they remove the need to explicitly account for optical flow, and this simpler model results in faster inference speeds. 
 
 ## Our Model
+
+![](visuals/cuFlavr.png)
+
+Here we see that the we successfully implemented the encoder half of the network.
+For the decoder and postprocessing portions, we interfaced the intermediate tensors
+back into the pytorch model to run it to completion. 
+
+---
+
 
 Image | Layers from Our Model
 ------|----------------
