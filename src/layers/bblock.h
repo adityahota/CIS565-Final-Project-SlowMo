@@ -33,7 +33,7 @@ public:
     BBlock(Dims5 blockDimsIn,
            std::string conv1_weights, Dims3 conv1_str,
            std::string conv2_weights, Dims3 conv2_str,
-           std::string fg_weights, std::string fg_bias, Dims3 fg_str, Dims3 fg_pad,
+           std::string fg_weights, std::string fg_bias,
            bool downsample, std::string downsample_weights, Dims3 downsample_stride);
     ~BBlock();
 
