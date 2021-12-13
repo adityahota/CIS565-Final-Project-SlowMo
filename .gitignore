@@ -4,7 +4,6 @@
 /img/*
 a.out
 temp/readtensor.c
-tensor_bins/*
 testexec
 test.txt
 testLoad.txt
