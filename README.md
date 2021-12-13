@@ -3,6 +3,42 @@
 ## CIS 565 Fall 2021
 ### Team 03: Aditya Hota, Richard Chen, Kaan Erdogmus
 
+Original
+
+https://user-images.githubusercontent.com/12516225/145783989-634f80ab-49ef-4bb9-88c8-56cf3374bfe4.mp4
+
+
+Interpolated
+
+https://user-images.githubusercontent.com/12516225/145784020-86b2e2c9-6f78-4852-8ff5-c53045ca8d80.mp4
+
+
+---
+
+Original
+
+https://user-images.githubusercontent.com/12516225/145784504-0312773d-c93a-4899-840d-7e64d310ae2c.mp4
+
+
+Interpolated
+
+https://user-images.githubusercontent.com/12516225/145784537-1c83a0dd-427f-4a01-a083-a7081f38cb2f.mp4
+
+
+---
+
+Original
+
+https://user-images.githubusercontent.com/12516225/145784811-1fedb3a7-8e20-417a-b2c2-edc5a3ffd16b.mp4
+
+
+Interpolated
+
+https://user-images.githubusercontent.com/12516225/145784853-f88c9aff-7892-47b1-b489-a7c14f429b8c.mp4
+
+
+
+
 
 ## Introduction
 
@@ -63,17 +99,7 @@ We sought to implement the FLAVR architecture in cuDNN. This involved using both
 
 <!-- ![](visuals/cuFlavr.png) -->
 
-Here we see that the we successfully implemented the encoder half of the network.
-For the decoder and postprocessing portions, we interfaced the intermediate tensors
-back into the PyTorch model to run it to completion. 
-
----
-
-
-Image | Layers from Our Model
-------|----------------
-![](interpolated/interpolated_2x_single_frame_x0_x1.jpg) | x0, x1
-![](interpolated/interpolated_2x_single_frame_x0_x1_x2.jpg) | x0, x1, x2
+Here we see that the we successfully implemented the encoder half of the network. Blocks 1-4 were verified to be working and are used in the interpolation pipeline. For the decoder and postprocessing portions, we interfaced the intermediate tensors back into the PyTorch model to run it to completion. 
 
 ## Results
 
@@ -110,12 +136,17 @@ As you can see, cuDNN takes much longer per layer (~100x) to perform inference w
 
 * Floating point math is not commutative; often our values had the least significant figure slightly off making it impossible to diff or cmp against the known tensor, to say nothing of -ffast-math or possible hardware specific fixed function trigonometric functions
 * 5d tensors, necessary to use 3d spacetime convolutions, seem to be second-class citizens when it comes to cuDNN compared to 4d tensors
-* 
 
 ## Requirements
 * cuDNN 8.3
 * CUDA 11.5
 * PyTorch 1.10
+
+## Acknowledgements
+* Kalluri, T., Pathak, D., Chandraker, M., & Tran, D. (2020). Flavr: Flow-agnostic video representations for fast frame interpolation. arXiv preprint arXiv:2012.08512.
+  * Python code is adapted from their [GitHub](https://github.com/tarun005/FLAVR)
+* Tran, D., Wang, H., Torresani, L., Ray, J., LeCun, Y., & Paluri, M. (2018). A closer look at spatiotemporal convolutions for action recognition. In Proceedings of the IEEE conference on Computer Vision and Pattern Recognition (pp. 6450-6459).
+* Peter Goldsborough: [2D Convolutions using cuDNN](http://www.goldsborough.me/cuda/ml/cudnn/c++/2017/10/01/14-37-23-convolutions_with_cudnn/)
 
 
 
