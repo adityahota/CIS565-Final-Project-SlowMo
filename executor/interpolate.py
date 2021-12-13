@@ -137,7 +137,7 @@ outputs = [] ## store the input and interpolated frames
 
 model = model.eval()
 
-for i in tqdm.tqdm(range(len(idxs))): #range(1,2)
+for i in range(1,2): # tqdm.tqdm(range(len(idxs))): #range(1,2)
     idxSet = idxs[i]
     inputs = [frames[idx_].cuda().unsqueeze(0) for idx_ in idxSet]
     with torch.no_grad():

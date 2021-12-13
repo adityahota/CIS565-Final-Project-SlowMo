@@ -143,21 +143,23 @@ class UNet_3D_3D(nn.Module):
         ## https://github.com/myungsub/CAIN
         mean_ = images.mean(2, keepdim=True).mean(3, keepdim=True).mean(4,keepdim=True)
         images = images-mean_ 
-        images.cpu().numpy().tofile("encoder_input.bin")
+        a, b, c, d, e = images.shape
+        images.cpu().numpy().tofile(f"encoder-input__{a}x{b}x{c}x{d}x{e}.bin")
 
-#        x_0 , x_1, x_2 , x_3 , x_4 = self.encoder(images)
-        os.system("CUDA-Convolution2D encoder_input.bin")
+        # x_0 , x_1, x_2 , x_3 , x_4 = self.encoder(images)
+        x_0 , _x_1, _x_2 , _x_3 , _x_4 = self.encoder(images)
+        os.system(f"./CUDA-Convolution2D ./encoder-input__{a}x{b}x{c}x{d}x{e}.bin")
 
-        x_0 = torch.Tensor(np.fromfile("x0_cudnn.bin", dtype=np.float32).reshape(1,64,4,H/2,W/2)).cuda()
-#        print("GOT IT: ", x_0.shape)
-        x_1 = torch.Tensor(np.fromfile("x1_cudnn.bin", dtype=np.float32).reshape(1,64,4,H/2,W/2)).cuda()
-#        print("GOT IT: ", x_1.shape)
-        x_2 = torch.Tensor(np.fromfile("x2_cudnn.bin", dtype=np.float32).reshape(1,128,4,H/4,W/4)).cuda()
-#        print("GOT IT: ", x_2.shape)
-        x_3 = torch.Tensor(np.fromfile("x3_cudnn.bin", dtype=np.float32).reshape(1,256,4,H/8,W/8)).cuda()
-#        print("GOT IT: ", x_3.shape)
-        x_4 = torch.Tensor(np.fromfile("x4_cudnn.bin", dtype=np.float32).reshape(1,512,4,H/8,W/8)).cuda()
-#        print("GOT IT: ", x_4.shape)
+        # x_0 = torch.Tensor(np.fromfile("x0_cudnn.bin", dtype=np.float32).reshape(1,64,4,H//2,W//2)).cuda()
+    #    print("GOT IT: ", x_0.shape)
+        x_1 = torch.Tensor(np.fromfile("x1_cudnn.bin", dtype=np.float32).reshape(1,64,4,H//2,W//2)).cuda()
+    #    print("GOT IT: ", x_1.shape)
+        x_2 = torch.Tensor(np.fromfile("x2_cudnn.bin", dtype=np.float32).reshape(1,128,4,H//4,W//4)).cuda()
+    #    print("GOT IT: ", x_2.shape)
+        x_3 = torch.Tensor(np.fromfile("x3_cudnn.bin", dtype=np.float32).reshape(1,256,4,H//8,W//8)).cuda()
+    #    print("GOT IT: ", x_3.shape)
+        x_4 = torch.Tensor(np.fromfile("x4_cudnn.bin", dtype=np.float32).reshape(1,512,4,H//8,W//8)).cuda()
+    #    print("GOT IT: ", x_4.shape)
 
 
         dx_3 = self.lrelu(self.decoder[0](x_4))

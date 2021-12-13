@@ -83,23 +83,10 @@ Conv3d::Conv3d(std::string filterFile, Dims5 dims_in,
 void Conv3d::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, float *input,
                  cudnnTensorDescriptor_t *outputDesc, float **output, TagUnionExtraRet *extra)
 {
-    // checkCUDAError("cuda pree");
     // Allocate space on GPU for output tensor
     int num_elements_out = dims_out.dims[0] * dims_out.dims[1] * dims_out.dims[2] * dims_out.dims[3] * dims_out.dims[4];
-    float *dev_tmp;
-    static bool reached = false;
-    //    if (reached)
-    //    {
-    //        cudaFree(input);
-    //    }
-    //    if (!reached)
-    //    {
-    //    	reached = true;
-    //    }
-    cudaMalloc(&dev_tmp, num_elements_out * sizeof(float));
-    // checkCUDAError("cuda mallo amgory");
-    cudaMemset(dev_tmp, 0, num_elements_out * sizeof(float));
-    // checkCUDAError("nvida ree");
+    cudaMalloc(output, num_elements_out * sizeof(float));
+    cudaMemset(*output, 0, num_elements_out * sizeof(float));
 
     // Initialize the algorithm
     cudnnConvolutionFwdAlgoPerf_t algorithm_perf;
@@ -132,8 +119,7 @@ void Conv3d::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, floa
         desc_filter, dev_filter,
         desc_conv, algorithm_perf.algo,
         dev_workspace, dev_workspace_bytes,
-        &zero, desc_out, dev_tmp));
-    *output = dev_tmp;
+        &zero, desc_out, *output));
 
     return;
 }
