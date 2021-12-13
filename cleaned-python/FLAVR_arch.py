@@ -170,12 +170,14 @@ class UNet_3D_3D(nn.Module):
         images = images-mean_ 
 #        images.cpu().numpy().tofile("frames_post.bin")
 
-        _ , _ , x_2 , x_3 , x_4 = self.encoder(images)
+        _ , _ , _ , x_3 , x_4 = self.encoder(images)
 
         x_0 = torch.Tensor(np.fromfile("../main_out_x0.bin", dtype=np.float32).reshape(1,64,4,128,224)).cuda()
         print("GOT IT: ", x_0.shape)
         x_1 = torch.Tensor(np.fromfile("../main_out_x1.bin", dtype=np.float32).reshape(1,64,4,128,224)).cuda()
         print("GOT IT: ", x_1.shape)
+        x_2 = torch.Tensor(np.fromfile("../main_out_x2.bin", dtype=np.float32).reshape(1,128,4,64,112)).cuda()
+        print("GOT IT: ", x_2.shape)
 
 #        x_0.cpu().numpy().tofile("x_0.bin")
 #        x_1.cpu().numpy().tofile("x_1.bin")

@@ -150,7 +150,7 @@ for i in range(1,2):#tqdm.tqdm(range(len(idxs))):
     #outputs.append(inputs[2].squeeze(0).cpu().data)
 
 new_video = [make_image(im_) for im_ in outputs]
-
+print("number of frames in new_video:", len(new_video))
 write_video_cv2(new_video , output_video , args.output_fps , (resizes[1] , resizes[0]))
 
 print("Writing to " , output_video.split(".")[0] + ".mp4")
