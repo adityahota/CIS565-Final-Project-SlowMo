@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import time
 import numpy as np
 
 
@@ -78,19 +79,18 @@ class Encoder(nn.Module):
                 BasicBlock(512, 512, useBias=useBias))
 
     def forward(self, x):
-        print("Encoder in: ", x.shape)
+        print("Encoder in: ", x.shape, time.perf_counter())
         x_0 = self.stem(x)
-        print("Encoder x_0: ", x.shape)
+        print("Encoder x_0: ", x.shape, time.perf_counter())
         x_1 = self.layer1_1(x_0)
-        x_1.cpu().numpy().tofile("layer1_1_out.bin")
         x_1 = self.layer1_2(x_1)
-        print("Encoder x_1: ", x.shape)
+        print("Encoder x_1: ", x.shape, time.perf_counter())
         x_2 = self.layer2(x_1)
-        print("Encoder x_2: ", x.shape)
+        print("Encoder x_2: ", x.shape, time.perf_counter())
         x_3 = self.layer3(x_2)
-        print("Encoder x_3: ", x.shape)
+        print("Encoder x_3: ", x.shape, time.perf_counter())
         x_4 = self.layer4(x_3)
-        print("Encoder x_4: ", x.shape)
+        print("Encoder x_4: ", x.shape, time.perf_counter())
         return x_0, x_1, x_2, x_3, x_4
 
 
@@ -170,14 +170,18 @@ class UNet_3D_3D(nn.Module):
         images = images-mean_ 
 #        images.cpu().numpy().tofile("frames_post.bin")
 
-        _ , _ , _ , x_3 , x_4 = self.encoder(images)
+       # _ , _ , _ , x_3 , x_4 = self.encoder(images)
 
-        x_0 = torch.Tensor(np.fromfile("../main_out_x0.bin", dtype=np.float32).reshape(1,64,4,128,224)).cuda()
+        x_0 = torch.Tensor(np.fromfile("../x0_cudnn.bin", dtype=np.float32).reshape(1,64,4,128,224)).cuda()
         print("GOT IT: ", x_0.shape)
-        x_1 = torch.Tensor(np.fromfile("../main_out_x1.bin", dtype=np.float32).reshape(1,64,4,128,224)).cuda()
+        x_1 = torch.Tensor(np.fromfile("../x1_cudnn.bin", dtype=np.float32).reshape(1,64,4,128,224)).cuda()
         print("GOT IT: ", x_1.shape)
-        x_2 = torch.Tensor(np.fromfile("../main_out_x2.bin", dtype=np.float32).reshape(1,128,4,64,112)).cuda()
+        x_2 = torch.Tensor(np.fromfile("../x2_cudnn.bin", dtype=np.float32).reshape(1,128,4,64,112)).cuda()
         print("GOT IT: ", x_2.shape)
+        x_3 = torch.Tensor(np.fromfile("../x3_cudnn.bin", dtype=np.float32).reshape(1,256,4,32,56)).cuda()
+        print("GOT IT: ", x_3.shape)
+        x_4 = torch.Tensor(np.fromfile("../x4_cudnn.bin", dtype=np.float32).reshape(1,512,4,32,56)).cuda()
+        print("GOT IT: ", x_4.shape)
 
 #        x_0.cpu().numpy().tofile("x_0.bin")
 #        x_1.cpu().numpy().tofile("x_1.bin")
