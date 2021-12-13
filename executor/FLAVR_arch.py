@@ -70,12 +70,12 @@ class Encoder(nn.Module):
 
     def forward(self, x):
         x_0 = self.stem(x)
-        x_1 = self.layer1_1(x_0)
-        x_1 = self.layer1_2(x_1)
-        x_2 = self.layer2(x_1)
-        x_3 = self.layer3(x_2)
-        x_4 = self.layer4(x_3)
-        return x_0, x_1, x_2, x_3, x_4
+        # x_1 = self.layer1_1(x_0)
+        # x_1 = self.layer1_2(x_1)
+        # x_2 = self.layer2(x_1)
+        # x_3 = self.layer3(x_2)
+        # x_4 = self.layer4(x_3)
+        return x_0 #, x_1, x_2, x_3, x_4
 
 
 
@@ -136,7 +136,6 @@ class UNet_3D_3D(nn.Module):
 
     def forward(self, images):
         _, _, H, W = images[0].shape
-        print(H, W)
         images = torch.stack(images, dim=2)
 
         ## Batch mean normalization works slightly better than global mean normalization
@@ -147,7 +146,7 @@ class UNet_3D_3D(nn.Module):
         images.cpu().numpy().tofile(f"encoder-input__{a}x{b}x{c}x{d}x{e}.bin")
 
         # x_0 , x_1, x_2 , x_3 , x_4 = self.encoder(images)
-        x_0 , _x_1, _x_2 , _x_3 , _x_4 = self.encoder(images)
+        x_0 = self.encoder(images)
         os.system(f"./CUDA-Convolution2D ./encoder-input__{a}x{b}x{c}x{d}x{e}.bin")
 
         # x_0 = torch.Tensor(np.fromfile("x0_cudnn.bin", dtype=np.float32).reshape(1,64,4,H//2,W//2)).cuda()

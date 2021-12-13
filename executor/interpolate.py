@@ -134,18 +134,18 @@ width = n_outputs + 1
 
 outputs = [] ## store the input and interpolated frames
 
-#outputs.append(frames[idxs[0][1]])
+outputs.append(frames[idxs[0][1]])
 
 model = model.eval()
 
-for i in range(1,2): # tqdm.tqdm(range(len(idxs))): #range(1,2)
+for i in tqdm.tqdm(range(len(idxs))): #range(1,2)
     idxSet = idxs[i]
     inputs = [frames[idx_].cuda().unsqueeze(0) for idx_ in idxSet]
     with torch.no_grad():
         outputFrame = model(inputs)   
     outputFrame = [of.squeeze(0).cpu().data for of in outputFrame]
     outputs.extend(outputFrame)
-    #outputs.append(inputs[2].squeeze(0).cpu().data)
+    outputs.append(inputs[2].squeeze(0).cpu().data)
 
 new_video = [make_image(im_) for im_ in outputs]
 print("number of frames in new_video:", len(new_video))
