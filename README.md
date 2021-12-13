@@ -103,7 +103,14 @@ Our primary endpoint for this project was to implement the FLAVR architecture in
 
 ### Performance
 
-Measurements of the encoder layers in the PyTorch model. Measured with `time.perf_counter()` and `std::chrono::high_resolution_clock`.
+We compared the performance of the pipeline with the original encoder to the pipeline with our cuDNN encoder. Tests were conducted on a GTX 1050Ti laptop GPU with 4GB of video memory, running on Ubuntu 20.04.
+
+![FLAVR Network Runtimes](https://user-images.githubusercontent.com/12516225/145895895-d248948c-d7a7-4bca-861c-0a78b1f091db.png)
+
+We found that the pipeline performance is better using the original encoder--however, this does not take into account the time required to transfer data through the filesystem between the Python code and the C++ executable. The end user will see this runtime, so it is the best representation of the current speed of our work. Once we are able to implement the complete pipeline in C++, we expect that our pipeline will run much faster.
+
+
+Below are measurements of the encoder layers in the PyTorch model. Measured with `time.perf_counter()` and `std::chrono::high_resolution_clock`.
 Layer    | PyTorch Time (ms) | cuFLAVR Time (ms)
 ---------|-------------------|------------
 Stem     | 1.973048 | 317.794
