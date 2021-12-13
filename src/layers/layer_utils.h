@@ -171,3 +171,10 @@ Dims5 dim5Stride(Dims5 dims);
  * @return int
  */
 int dims5ToSize(Dims5 d);
+
+/**
+ * @brief Prints out dimensions represented by a Dims5
+ *
+ * @param d
+ */
+void printDims5(Dims5 d);
