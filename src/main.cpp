@@ -5,6 +5,8 @@
 #include "layers/bstem.h"
 #include "layers/bblock.h"
 
+#define NO_PRINT 0
+
 void writeTensor2Bin(char *fName, int size, float *t)
 {
     FILE *f = fopen(fName, "wb");
@@ -15,6 +17,11 @@ void writeTensor2Bin(char *fName, int size, float *t)
 
 int main(int argc, char *argv[])
 {
+#if NO_PRINT
+    // set cout to NULL
+    std::cout.rdbuf(NULL);
+#endif
+
     cudaSetDevice(0);
     cudnnHandle_t h;
     checkCUDNN(cudnnCreate(&h));
@@ -232,11 +239,11 @@ int main(int argc, char *argv[])
     float *host_x4 = new float[output_elements_x4];
     cudaMemcpy(host_x4, dev_output_layer4_block1, output_elements_x4 * sizeof(float), cudaMemcpyDeviceToHost);
 
-    writeTensor2Bin("temp/x0_cudnn.bin", output_elements_stem, host_stem);
-    writeTensor2Bin("temp/x1_cudnn.bin", output_elements_x1, host_x1);
-    writeTensor2Bin("temp/x2_cudnn.bin", output_elements_x2, host_x2);
-    writeTensor2Bin("temp/x3_cudnn.bin", output_elements_x3, host_x3);
-    writeTensor2Bin("temp/x4_cudnn.bin", output_elements_x4, host_x4);
+    writeTensor2Bin("x0_cudnn.bin", output_elements_stem, host_stem);
+    writeTensor2Bin("x1_cudnn.bin", output_elements_x1, host_x1);
+    writeTensor2Bin("x2_cudnn.bin", output_elements_x2, host_x2);
+    writeTensor2Bin("x3_cudnn.bin", output_elements_x3, host_x3);
+    writeTensor2Bin("x4_cudnn.bin", output_elements_x4, host_x4);
 
     // Free data
     cudaFree(dev_input_frames);
@@ -275,6 +282,6 @@ int main(int argc, char *argv[])
     std::cout << us_layer3 << std::endl;
     std::cout << us_layer4 << std::endl;
 
-    std::cerr << "Exiting..." << std::endl;
+    std::cout << "Exiting..." << std::endl;
     return 0;
 }
