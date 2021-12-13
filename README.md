@@ -133,7 +133,7 @@ As you can see, cuDNN takes much longer per layer (~100x) to perform inference w
 * Tran, D., Wang, H., Torresani, L., Ray, J., LeCun, Y., & Paluri, M. (2018). A closer look at spatiotemporal convolutions for action recognition. In Proceedings of the IEEE conference on Computer Vision and Pattern Recognition (pp. 6450-6459).
 * Peter Goldsborough: [2D Convolutions using cuDNN](http://www.goldsborough.me/cuda/ml/cudnn/c++/2017/10/01/14-37-23-convolutions_with_cudnn/)
 
-* The clips samples that were interpolated are from [Squirrel](http://www.bbc.com/earth), [Ladybug](https://prettyanimated.tumblr.com/post/72261472646/prettyanimated), [Flowers](http://gif-it-me.tumblr.com/post/46665395033/gif-it-me-tumblr-com).
+* The sample clips that were interpolated are from [Squirrel](http://www.bbc.com/earth), [Ladybug](https://prettyanimated.tumblr.com/post/72261472646/prettyanimated), [Flowers](http://gif-it-me.tumblr.com/post/46665395033/gif-it-me-tumblr-com).
 
 
 <!-- This Specific
