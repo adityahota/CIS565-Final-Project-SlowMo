@@ -85,8 +85,20 @@ void Conv3d::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, floa
 {
     // Allocate space on GPU for output tensor
     int num_elements_out = dims_out.dims[0] * dims_out.dims[1] * dims_out.dims[2] * dims_out.dims[3] * dims_out.dims[4];
-    cudaMalloc(output, num_elements_out * sizeof(float));
-    cudaMemset(*output, 0, num_elements_out * sizeof(float));
+    float *dev_tmp = nullptr;
+    static bool reached = false;
+//    if (reached)
+//    {
+//        cudaFree(input);
+//    }
+//    if (!reached)
+//    {
+//    	reached = true;
+//    }
+    cudaMalloc(&dev_tmp, num_elements_out * sizeof(float));
+    checkCUDAError("cuda mallo amgory");
+    cudaMemset(dev_tmp, 0, num_elements_out * sizeof(float));
+    checkCUDAError("nvida ree");
 
     // Initialize the algorithm
     cudnnConvolutionFwdAlgoPerf_t algorithm_perf;
@@ -112,21 +124,32 @@ void Conv3d::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, floa
         &dev_workspace_bytes));
     cudaMalloc(&dev_workspace, dev_workspace_bytes);
 
+    if (desc_in == NULL || desc_filter == NULL || desc_conv == NULL || desc_out == NULL)
+    {
+        std::cout << "descrfiptor" << std::endl;
+    }
+    if (input == NULL)
+    {
+        std::cout << "input dataptr" << std::endl;
+    }
+    else if (dev_filter == NULL)
+    {
+        std::cout << "filter dataptr" << std::endl;
+    }
+    else if (*output == NULL)
+    {
+        std::cout << "output data ptr" << std::endl;
+    }
+
     // Run the convolution
     checkCUDNN(cudnnConvolutionForward(
         h,
-        &one,
-        desc_in,
-        input,
-        desc_filter,
-        dev_filter,
-        desc_conv,
-        algorithm_perf.algo,
-        dev_workspace,
-        dev_workspace_bytes,
-        &zero,
-        desc_out,
-        *output));
+        &one, desc_in, input,
+        desc_filter, dev_filter,
+        desc_conv, algorithm_perf.algo,
+        dev_workspace, dev_workspace_bytes,
+        &zero, desc_out, dev_tmp));
+    *output = dev_tmp;
 
     return;
 }

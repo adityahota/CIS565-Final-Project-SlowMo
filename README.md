@@ -41,6 +41,12 @@ NVidia has libraries that accelerate such tasks by running them on the GPU. cuBL
 
 ## FLAVR
 
+One of the key features of FLAVR for frame interpolation is in its very name: Flow Agnostic. 
+
+According to the paper, many try to solve the problem using bidirectional optical flow between adjacent video frames. However, occlusions and nonlinear motion are weaknesses to that approach. 
+
+By contrast, this method uses space-time convolutions 
+
 ## Performance
 
 ## Conclusions

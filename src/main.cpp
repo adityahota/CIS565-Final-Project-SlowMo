@@ -77,10 +77,11 @@ int main()
 
     //      1: Basic Block
     float *dev_output_layer1_block1;
-    layer1_block1->run(h, nullptr, dev_output_layer1_block0, nullptr, &dev_output_layer1_block1, nullptr);
+     layer1_block1->run(h, nullptr, dev_output_layer1_block0, nullptr, &dev_output_layer1_block1, nullptr);
+
 
     // Copy layer 1 data back to the user
-    int output_elements = dims5ToSize(layer1_block1->getOutputDims());
+    int output_elements = dims5ToSize(layer1_block0->getOutputDims());
     float *host_output = new float[output_elements];
     cudaMemcpy(host_output, dev_output_layer1_block1, output_elements * sizeof(float), cudaMemcpyDeviceToHost);
 
@@ -94,7 +95,7 @@ int main()
     cudaFree(dev_output_layer1_block1);
     delete[] host_output;
 
-    dumpTensor2Bin("temp/main_out.bin", dims5ToSize(stem->getOutputDims()), host_output);
+    dumpTensor2Bin("temp/main_out.bin", output_elements, host_output);
 
     std::cerr << "Exiting..." << std::endl;
     return 0;
