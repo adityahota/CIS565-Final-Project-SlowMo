@@ -7,7 +7,12 @@
 ## Introduction
 
 It is said that a picture is worth a thousand words. 
-At 24 fps, just one minute of sound-free video footage would be worth 24,000 words. 
+
+Just think, at 24 fps, just one minute of sound-free video footage would be worth 24,000 words.
+
+<!-- Which is why this README shall not contain any pictures and instead be a giant wall of text. -->
+
+
 <!-- That cinematic frame rate is already lower than accepatable for playing video games, yet it would take fewer than 25 minutes to tell all of Lord of the Rings. 
 
 Anything to do with videos require lots of computational muscle.  -->
@@ -43,10 +48,17 @@ NVidia has libraries that accelerate such tasks by running them on the GPU. cuBL
 ## FLAVR
 
 <img width="555" alt="FLAVR" src="https://user-images.githubusercontent.com/12516225/144300538-59f3b06e-97c2-46ae-8395-61522818ec74.png">
+
 Figure 1. Sampling procedure of FLAVR network, obtained from FLAVR paper
 CIS565 Final Project
 
+---
+
 ![](visuals/flavr_actual_architecture.png)
+
+Figure 2. A deeper look into the architecture of the FLAVR network
+
+---
 
 One of the key features of FLAVR for frame interpolation is in its very name: Flow Agnostic. 
 
@@ -58,11 +70,32 @@ By using spatiotemporal convolutions, they remove the need to explicitly account
 
 ## Our Model
 
+![](visuals/cuFlavr.png)
+
+Here we see that the we successfully implemented the encoder half of the network.
+For the decoder and postprocessing portions, we interfaced the intermediate tensors
+back into the pytorch model to run it to completion. 
+
+---
+
+
 Image | Layers from Our Model
 ------|----------------
 ![](interpolated/interpolated_2x_single_frame_x0_x1.jpg) | x0, x1
+![](interpolated/interpolated_2x_single_frame_x0_x1_x2.jpg) | x0, x1, x2
+
+
 
 ## Performance
+
+Measurements of the encoder layers in the PyTorch model. Measured with `time.perf_counter()`
+Layer    | PyTorch Time (ms) | cuFLAVR Time (ms)
+---------|-------------------|------------
+Stem     | 1.973048 |
+Layer 1  | 1.095656 |
+Layer 2  | 0.765495 |
+Layer 3  | 0.722510 |
+Layer 4  | 0.712768 | 
 
 ## Conclusions
 
