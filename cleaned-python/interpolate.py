@@ -10,7 +10,7 @@ from PIL import Image
 import numpy as np
 import tqdm
 from torchvision.io import read_video , write_video
-from dataset.transforms import ToTensorVideo , Resize
+from dataset.transforms import ToTensorVideo, Resize
 
 
 import argparse
@@ -123,8 +123,11 @@ if args.is_folder:
 else:
     videoTensor = video_to_tensor(input_video)
 
+print("video tensor is ", videoTensor.shape)
 idxs = torch.Tensor(range(len(videoTensor))).type(torch.long).view(1,-1).unfold(1,size=nbr_frame,step=1).squeeze(0)
-videoTensor , resizes = video_transform(videoTensor, args.downscale)
+print(idxs)
+print(idxs.shape)
+videoTensor , resizes = video_transform(videoTensor, 1)#args.downscale)
 print("Video tensor shape is " , videoTensor.shape)
 
 frames = torch.unbind(videoTensor, 1)
@@ -133,21 +136,21 @@ width = n_outputs + 1
 
 outputs = [] ## store the input and interpolated frames
 
-outputs.append(frames[idxs[0][1]])
+#outputs.append(frames[idxs[0][1]])
 
 model = model.eval()
 
-for i in tqdm.tqdm(range(len(idxs))):
+for i in range(1,2):#tqdm.tqdm(range(len(idxs))):
     idxSet = idxs[i]
     inputs = [frames[idx_].cuda().unsqueeze(0) for idx_ in idxSet]
     with torch.no_grad():
         outputFrame = model(inputs)   
     outputFrame = [of.squeeze(0).cpu().data for of in outputFrame]
     outputs.extend(outputFrame)
-    outputs.append(inputs[2].squeeze(0).cpu().data)
+    #outputs.append(inputs[2].squeeze(0).cpu().data)
 
 new_video = [make_image(im_) for im_ in outputs]
-
+print("number of frames in new_video:", len(new_video))
 write_video_cv2(new_video , output_video , args.output_fps , (resizes[1] , resizes[0]))
 
 print("Writing to " , output_video.split(".")[0] + ".mp4")

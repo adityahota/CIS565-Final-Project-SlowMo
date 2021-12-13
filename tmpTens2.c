@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[])
 {
-    const int cnt = 64 * 3 * 3 * 7 * 7;
+    const int cnt = 8192;
     float *buf = malloc(cnt * sizeof(float));
     // FILE *tens = fopen("tmpTensStemSigmoid.bin", "rb");
     FILE *tens = fopen(argv[1], "rb");

@@ -13,13 +13,13 @@ void writeTensor2Bin(char *fName, int size, float *t)
     std::cout << fName << " written to file" << std::endl;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     cudaSetDevice(0);
     cudnnHandle_t h;
     checkCUDNN(cudnnCreate(&h));
 
-    std::string input_frames_file = "example-frames/frames_post__1x3x4x256x448.bin";
+    std::string input_frames_file = argv[1];
 
     // Read stacked input size
     Dims5 input_frames_dims5 = filename2dims5(input_frames_file);
@@ -166,6 +166,7 @@ int main()
     //      1: Basic Block
     float *dev_output_layer1_block1;
     layer1_block1->run(h, nullptr, dev_output_layer1_block0, nullptr, &dev_output_layer1_block1, nullptr);
+    checkCUDAError("cuda main block1L1");
 
     //
     // Run layer 2
