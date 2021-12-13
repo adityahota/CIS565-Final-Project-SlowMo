@@ -67,7 +67,7 @@ The GPU, or Graphics Processing Unit, was initially created to offload the task 
 
 Neural Networks, are widely used in Machine Learning. Between the many interconnected neurons and the weights/biases that associated with each one, neural networks consist of a giant pile of linear algebra, with some nonlinear math also thrown in for good measure (to be a universal classifier). 
 
-Thus, GPUs are used to do machine learning tasks like training neural networks and running them to perform inference. Just take the example of matrix multiplication, each element of the product is an independent dot product of factor matrices. CUDA (Compute Unified Device Architecture) is a parallel computing API made by NVIDIA for general purpose GPU computing.
+Just take the example of matrix multiplication, each element of the product is an independent dot product of factor matrices. Because of the abundance of parallel computation, GPUs are used to do machine learning tasks like training neural networks and running them to perform inference. CUDA (Compute Unified Device Architecture) is a parallel computing API made by NVIDIA for general purpose GPU computing.
 
 Since one of the main jobs of a computer is to compute, there are many APIs that aim to speed up computation and/or provide a unified interface so other programs may use them. Oftentimes, they make use of the modern bells and whistles that CPUs have, for example, SIMD and Vector extensions to be as fast as possible. Famous ones include BLAS: Basic Linear Algebra Subprograms. NVIDIA has libraries that accelerate such tasks by running them on the GPU. cuBLAS is the GPU version of BLAS, and their cuDNN library implements many functions used in Deep Neural Networks.
 
