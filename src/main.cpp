@@ -1,4 +1,4 @@
-#include "includes.h"
+#include <chrono>
 
 #include "includes.h"
 #include "flavr.h"
@@ -151,12 +151,14 @@ int main(int argc, char *argv[])
     /*
      * LAYER RUNNING
      */
+    auto start_stem = std::chrono::high_resolution_clock::now();
     //
     // Run encoder stem
     //
     float *dev_output_stem;
     stem->run(h, nullptr, dev_input_frames, nullptr, &dev_output_stem, nullptr);
 
+    auto start_layer1 = std::chrono::high_resolution_clock::now();
     //
     // Run layer 1
     //      0: Basic Block
@@ -166,8 +168,8 @@ int main(int argc, char *argv[])
     //      1: Basic Block
     float *dev_output_layer1_block1;
     layer1_block1->run(h, nullptr, dev_output_layer1_block0, nullptr, &dev_output_layer1_block1, nullptr);
-    checkCUDAError("cuda main block1L1");
 
+    auto start_layer2 = std::chrono::high_resolution_clock::now();
     //
     // Run layer 2
     //      0: Basic Block
@@ -178,6 +180,7 @@ int main(int argc, char *argv[])
     float *dev_output_layer2_block1;
     layer2_block1->run(h, nullptr, dev_output_layer2_block0, nullptr, &dev_output_layer2_block1, nullptr);
 
+    auto start_layer3 = std::chrono::high_resolution_clock::now();
     //
     // Run layer 3
     //      0: Basic Block
@@ -188,6 +191,7 @@ int main(int argc, char *argv[])
     float *dev_output_layer3_block1;
     layer3_block1->run(h, nullptr, dev_output_layer3_block0, nullptr, &dev_output_layer3_block1, nullptr);
 
+    auto start_layer4 = std::chrono::high_resolution_clock::now();
     //
     // Run layer 4
     //      0: Basic Block
@@ -197,6 +201,8 @@ int main(int argc, char *argv[])
     //      1: Basic Block
     float *dev_output_layer4_block1;
     layer4_block1->run(h, nullptr, dev_output_layer4_block0, nullptr, &dev_output_layer4_block1, nullptr);
+
+    auto stop = std::chrono::high_resolution_clock::now();
 
     /*
      * DATA TRANSFER TO HOST
@@ -248,6 +254,26 @@ int main(int argc, char *argv[])
     delete[] host_x2;
     delete[] host_x3;
     delete[] host_x4;
+
+    // Calculate timings
+    auto time_stem = start_layer1 - start_stem;
+    auto time_layer1 = start_layer2 - start_layer1;
+    auto time_layer2 = start_layer3 - start_layer2;
+    auto time_layer3 = start_layer4 - start_layer3;
+    auto time_layer4 = stop - start_layer4;
+
+    long long us_stem = std::chrono::duration_cast<std::chrono::microseconds>(time_stem).count();
+    long long us_layer1 = std::chrono::duration_cast<std::chrono::microseconds>(time_layer1).count();
+    long long us_layer2 = std::chrono::duration_cast<std::chrono::microseconds>(time_layer2).count();
+    long long us_layer3 = std::chrono::duration_cast<std::chrono::microseconds>(time_layer3).count();
+    long long us_layer4 = std::chrono::duration_cast<std::chrono::microseconds>(time_layer4).count();
+
+    std::cout << "Times by layer (us):" << std::endl;
+    std::cout << us_stem << std::endl;
+    std::cout << us_layer1 << std::endl;
+    std::cout << us_layer2 << std::endl;
+    std::cout << us_layer3 << std::endl;
+    std::cout << us_layer4 << std::endl;
 
     std::cerr << "Exiting..." << std::endl;
     return 0;
