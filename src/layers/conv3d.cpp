@@ -125,23 +125,6 @@ void Conv3d::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, floa
         &dev_workspace_bytes));
     cudaMalloc(&dev_workspace, dev_workspace_bytes);
 
-    if (desc_in == NULL || desc_filter == NULL || desc_conv == NULL || desc_out == NULL)
-    {
-        std::cout << "descrfiptor" << std::endl;
-    }
-    if (input == NULL)
-    {
-        std::cout << "input dataptr" << std::endl;
-    }
-    else if (dev_filter == NULL)
-    {
-        std::cout << "filter dataptr" << std::endl;
-    }
-    else if (*output == NULL)
-    {
-        std::cout << "output data ptr" << std::endl;
-    }
-
     // Run the convolution
     checkCUDNN(cudnnConvolutionForward(
         h,
