@@ -3,6 +3,42 @@
 ## CIS 565 Fall 2021
 ### Team 03: Aditya Hota, Richard Chen, Kaan Erdogmus
 
+Original
+
+https://user-images.githubusercontent.com/12516225/145783989-634f80ab-49ef-4bb9-88c8-56cf3374bfe4.mp4
+
+
+Interpolated
+
+https://user-images.githubusercontent.com/12516225/145784020-86b2e2c9-6f78-4852-8ff5-c53045ca8d80.mp4
+
+
+---
+
+Original
+
+https://user-images.githubusercontent.com/12516225/145784504-0312773d-c93a-4899-840d-7e64d310ae2c.mp4
+
+
+Interpolated
+
+https://user-images.githubusercontent.com/12516225/145784537-1c83a0dd-427f-4a01-a083-a7081f38cb2f.mp4
+
+
+---
+
+Original
+
+https://user-images.githubusercontent.com/12516225/145784811-1fedb3a7-8e20-417a-b2c2-edc5a3ffd16b.mp4
+
+
+Interpolated
+
+https://user-images.githubusercontent.com/12516225/145784853-f88c9aff-7892-47b1-b489-a7c14f429b8c.mp4
+
+
+
+
 
 ## Introduction
 
@@ -64,14 +100,6 @@ We sought to implement the FLAVR architecture in cuDNN. This involved using both
 <!-- ![](visuals/cuFlavr.png) -->
 
 Here we see that the we successfully implemented the encoder half of the network. Blocks 1-4 were verified to be working and are used in the interpolation pipeline. For the decoder and postprocessing portions, we interfaced the intermediate tensors back into the PyTorch model to run it to completion. 
-
----
-
-
-Image | Layers from Our Model
-------|----------------
-![](interpolated/interpolated_2x_single_frame_x0_x1.jpg) |  x1
-![](interpolated/interpolated_2x_single_frame_x0_x1_x2.jpg) |  x1, x2
 
 ## Results
 
