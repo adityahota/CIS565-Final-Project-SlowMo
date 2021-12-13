@@ -43,24 +43,56 @@ int main()
     std::cout << "Encoder output dimensions: ";
     printDims5(stem->getOutputDims());
 
-    // Create
+    // Create layer1
+    //      0: Basic Block
+    Dims3 layer1_conv1_str = mkDims3(1, 1, 1);
+    Dims3 layer1_conv2_str = mkDims3(1, 1, 1);
+    BBlock *layer1_block0 = new BBlock(stem->getOutputDims(),
+                                       "tensor_bins/module.encoder.layer1.0.conv1.0.weight__64x64x3x3x3.bin", layer1_conv1_str,
+                                       "tensor_bins/module.encoder.layer1.0.conv2.0.weight__64x64x3x3x3.bin", layer1_conv2_str,
+                                       "tensor_bins/module.encoder.layer1.0.fg.attn_layer.0.weight__64x64x1x1x1.bin",
+                                       "tensor_bins/module.encoder.layer1.0.fg.attn_layer.0.bias__64.bin",
+                                       false, "", mkDims3(0, 0, 0));
+    std::cout << "Layer 1 block 0 output dimensions: ";
+    printDims5(layer1_block0->getOutputDims());
 
-    // Create
+    //      1: Basic Block
+    BBlock *layer1_block1 = new BBlock(layer1_block0->getOutputDims(),
+                                       "tensor_bins/module.encoder.layer1.1.conv1.0.weight__64x64x3x3x3.bin", layer1_conv1_str,
+                                       "tensor_bins/module.encoder.layer1.1.conv2.0.weight__64x64x3x3x3.bin", layer1_conv2_str,
+                                       "tensor_bins/module.encoder.layer1.1.fg.attn_layer.0.weight__64x64x1x1x1.bin",
+                                       "tensor_bins/module.encoder.layer1.1.fg.attn_layer.0.bias__64.bin",
+                                       false, "", mkDims3(0, 0, 0));
+    std::cout << "Layer 1 block 1 output dimensions: ";
+    printDims5(layer1_block1->getOutputDims());
 
     // Run encoder stem
-    float *dev_output;
-    stem->run(h, nullptr, dev_input_frames, nullptr, &dev_output, nullptr);
+    float *dev_output_stem;
+    stem->run(h, nullptr, dev_input_frames, nullptr, &dev_output_stem, nullptr);
 
-    // Copy stem data back to the user
-    float *host_output = new float[dims5ToSize(stem->getOutputDims())];
-    cudaMemcpy(host_output, dev_output, dims5ToSize(stem->getOutputDims()) * sizeof(float), cudaMemcpyDeviceToHost);
+    // Run layer 1
+    //      0: Basic Block
+    float *dev_output_layer1_block0;
+    layer1_block0->run(h, nullptr, dev_output_stem, nullptr, &dev_output_layer1_block0, nullptr);
+
+    //      1: Basic Block
+    float *dev_output_layer1_block1;
+    layer1_block1->run(h, nullptr, dev_output_layer1_block0, nullptr, &dev_output_layer1_block1, nullptr);
+
+    // Copy layer 1 data back to the user
+    int output_elements = dims5ToSize(layer1_block1->getOutputDims());
+    float *host_output = new float[output_elements];
+    cudaMemcpy(host_output, dev_output_layer1_block1, output_elements * sizeof(float), cudaMemcpyDeviceToHost);
 
     //
     //
     //
     // Free unneeded data
     cudaFree(dev_input_frames);
-    cudaFree(dev_output);
+    cudaFree(dev_output_stem);
+    cudaFree(dev_output_layer1_block0);
+    cudaFree(dev_output_layer1_block1);
+    delete[] host_output;
 
     dumpTensor2Bin("temp/main_out.bin", dims5ToSize(stem->getOutputDims()), host_output);
 

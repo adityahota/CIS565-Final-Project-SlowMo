@@ -3,7 +3,7 @@
 BBlock::BBlock(Dims5 blockDimsIn,
                std::string conv1_weights, Dims3 conv1_str,
                std::string conv2_weights, Dims3 conv2_str,
-               std::string fg_weights, std::string fg_bias, Dims3 fg_str, Dims3 fg_pad,
+               std::string fg_weights, std::string fg_bias,
                bool downsample, std::string downsample_weights, Dims3 downsample_stride)
 {
     // Store whether or not downsampling is required
@@ -69,6 +69,8 @@ void BBlock::run(cudnnHandle_t h,
                  cudnnTensorDescriptor_t *outputDesc, float **output,
                  TagUnionExtraRet *extra)
 {
+    std::cout << "Running Basic Block..." << std::endl;
+
     if (downsampleFlag)
     {
         conv1_conv->run(h, nullptr, input, nullptr, &postConv1, nullptr);
@@ -85,12 +87,22 @@ void BBlock::run(cudnnHandle_t h,
     else
     {
         conv1_conv->run(h, nullptr, input, nullptr, &postConv1, nullptr);
+        std::cout << "Finished conv1" << std::endl;
+
         relu->run(relu1Size, postConv1);
+        std::cout << "Finished relu1" << std::endl;
+
         conv2_conv->run(h, nullptr, postConv1, nullptr, &postConv2, nullptr);
+        std::cout << "Finished conv2" << std::endl;
+
         g->run(h, nullptr, postConv2, nullptr, &postGate, nullptr);
+        std::cout << "Finished gate" << std::endl;
+
         cudnnAddTensor(h,
                        &one, postGateDesc, postGate,
                        &one, inDescT, input); // A is the output so far, c is initial input
+        std::cout << "Finished add" << std::endl;
+
         relu->run(relu2Size, input);
         *output = input;
     }
