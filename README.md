@@ -3,24 +3,35 @@
 ## CIS 565 Fall 2021
 ### Team 03: Aditya Hota, Richard Chen, Kaan Erdogmus
 
-Original and 2x Interpolated (30 FPS)
+Original (30 FPS)
 
-![Comparison](./visuals/squirrel_cmp.gif)
+![Original](./visuals/squirrel.gif)
+
+2x Interpolated (30 FPS)
+
+![Inferred](./visuals/squirrel_2x.gif)
+---
+
+Original (30 FPS)
+
+![Original](./visuals/ladybug.gif)
+
+2x Interpolated (30 FPS)
+
+![Inferred](./visuals/ladybug_2x.gif)
+
 
 
 ---
 
-Original and 2x Interpolated (30 FPS)
+Original (30 FPS)
 
-![Comparison](./visuals/ladybug_cmp.gif)
+![Original](./visuals/flower.gif)
 
+2x Interpolated (30 FPS)
 
+![Inferred](./visuals/flower_2x.gif)
 
----
-
-Original and 2x Interpolated (30 FPS)
-
-![Original](./visuals/flower_cmp.gif)
 
 
 
