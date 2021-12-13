@@ -146,3 +146,12 @@ int dims5ToSize(Dims5 d)
 {
     return d.dims[0] * d.dims[1] * d.dims[2] * d.dims[3] * d.dims[4];
 }
+
+void printDims5(Dims5 d)
+{
+    for (int i : d.dims)
+    {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
+}

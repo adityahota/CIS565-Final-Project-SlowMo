@@ -26,7 +26,8 @@ typedef struct VidFrame
         cudnnStatus_t status = (expression);                       \
         if (status != CUDNN_STATUS_SUCCESS)                        \
         {                                                          \
-            std::cerr << "Error on line " << __LINE__ << ": "      \
+            std::cerr << "Error on " << __FILE__ << " line "       \
+                      << __LINE__ << ": "                          \
                       << cudnnGetErrorString(status) << std::endl; \
             std::exit(EXIT_FAILURE);                               \
         }                                                          \
