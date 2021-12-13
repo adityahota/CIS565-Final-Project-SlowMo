@@ -108,12 +108,17 @@ As you can see, cuDNN takes much longer per layer (~100x) to perform inference w
 
 * Floating point math is not commutative; often our values had the least significant figure slightly off making it impossible to diff or cmp against the known tensor, to say nothing of -ffast-math or possible hardware specific fixed function trigonometric functions
 * 5d tensors, necessary to use 3d spacetime convolutions, seem to be second-class citizens when it comes to cuDNN compared to 4d tensors
-* 
 
 ## Requirements
 * cuDNN 8.3
 * CUDA 11.5
 * PyTorch 1.10
+
+## Acknowledgements
+* Kalluri, T., Pathak, D., Chandraker, M., & Tran, D. (2020). Flavr: Flow-agnostic video representations for fast frame interpolation. arXiv preprint arXiv:2012.08512.
+  * Python code is adapted from their [GitHub](https://github.com/tarun005/FLAVR)
+* Tran, D., Wang, H., Torresani, L., Ray, J., LeCun, Y., & Paluri, M. (2018). A closer look at spatiotemporal convolutions for action recognition. In Proceedings of the IEEE conference on Computer Vision and Pattern Recognition (pp. 6450-6459).
+* Peter Goldsborough: [2D Convolutions using cuDNN](http://www.goldsborough.me/cuda/ml/cudnn/c++/2017/10/01/14-37-23-convolutions_with_cudnn/)
 
 
 
