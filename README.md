@@ -63,17 +63,15 @@ We sought to implement the FLAVR architecture in cuDNN. This involved using both
 
 <!-- ![](visuals/cuFlavr.png) -->
 
-Here we see that the we successfully implemented the encoder half of the network.
-For the decoder and postprocessing portions, we interfaced the intermediate tensors
-back into the PyTorch model to run it to completion. 
+Here we see that the we successfully implemented the encoder half of the network. Blocks 1-4 were verified to be working and are used in the interpolation pipeline. For the decoder and postprocessing portions, we interfaced the intermediate tensors back into the PyTorch model to run it to completion. 
 
 ---
 
 
 Image | Layers from Our Model
 ------|----------------
-![](interpolated/interpolated_2x_single_frame_x0_x1.jpg) | x0, x1
-![](interpolated/interpolated_2x_single_frame_x0_x1_x2.jpg) | x0, x1, x2
+![](interpolated/interpolated_2x_single_frame_x0_x1.jpg) |  x1
+![](interpolated/interpolated_2x_single_frame_x0_x1_x2.jpg) |  x1, x2
 
 ## Results
 
