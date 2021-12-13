@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import numpy as np
 
 
 class SEGating(nn.Module):
@@ -66,8 +67,9 @@ class Encoder(nn.Module):
                 nn.ReLU(inplace=False)
         )
 
-        self.layer1 = nn.Sequential(BasicBlock(64, 64, stride=(1,1,1), downsample=False, useBias=useBias),
-                BasicBlock(64, 64, useBias=useBias))
+        self.layer1_1 = BasicBlock(64, 64, stride=(1,1,1), downsample=False, useBias=useBias)
+        self.layer1_2 = BasicBlock(64, 64, useBias=useBias)
+
         self.layer2 = nn.Sequential(BasicBlock(64, 128, stride=(1,2,2), downsample=True, useBias=useBias),
                 BasicBlock(128, 128, useBias=useBias))
         self.layer3 = nn.Sequential(BasicBlock(128, 256, stride=(1,2,2), downsample=True, useBias=useBias),
@@ -79,7 +81,9 @@ class Encoder(nn.Module):
         print("Encoder in: ", x.shape)
         x_0 = self.stem(x)
         print("Encoder x_0: ", x.shape)
-        x_1 = self.layer1(x_0)
+        x_1 = self.layer1_1(x_0)
+        x_1.cpu().numpy().tofile("layer1_1_out.bin")
+        x_1 = self.layer1_2(x_1)
         print("Encoder x_1: ", x.shape)
         x_2 = self.layer2(x_1)
         print("Encoder x_2: ", x.shape)
@@ -166,7 +170,12 @@ class UNet_3D_3D(nn.Module):
         images = images-mean_ 
 #        images.cpu().numpy().tofile("frames_post.bin")
 
-        x_0 , x_1 , x_2 , x_3 , x_4 = self.encoder(images)
+        _ , _ , x_2 , x_3 , x_4 = self.encoder(images)
+
+        x_0 = torch.Tensor(np.fromfile("../main_out_x0.bin", dtype=np.float32).reshape(1,64,4,128,224)).cuda()
+        print("GOT IT: ", x_0.shape)
+        x_1 = torch.Tensor(np.fromfile("../main_out_x1.bin", dtype=np.float32).reshape(1,64,4,128,224)).cuda()
+        print("GOT IT: ", x_1.shape)
 
 #        x_0.cpu().numpy().tofile("x_0.bin")
 #        x_1.cpu().numpy().tofile("x_1.bin")

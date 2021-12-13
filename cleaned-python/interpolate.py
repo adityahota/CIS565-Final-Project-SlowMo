@@ -10,7 +10,7 @@ from PIL import Image
 import numpy as np
 import tqdm
 from torchvision.io import read_video , write_video
-from dataset.transforms import ToTensorVideo , Resize
+from dataset.transforms import ToTensorVideo, Resize
 
 
 import argparse
@@ -123,8 +123,11 @@ if args.is_folder:
 else:
     videoTensor = video_to_tensor(input_video)
 
+print("video tensor is ", videoTensor.shape)
 idxs = torch.Tensor(range(len(videoTensor))).type(torch.long).view(1,-1).unfold(1,size=nbr_frame,step=1).squeeze(0)
-videoTensor , resizes = video_transform(videoTensor, args.downscale)
+print(idxs)
+print(idxs.shape)
+videoTensor , resizes = video_transform(videoTensor, 1)#args.downscale)
 print("Video tensor shape is " , videoTensor.shape)
 
 frames = torch.unbind(videoTensor, 1)
@@ -137,7 +140,7 @@ outputs.append(frames[idxs[0][1]])
 
 model = model.eval()
 
-for i in tqdm.tqdm(range(len(idxs))):
+for i in range(1,2):#tqdm.tqdm(range(len(idxs))):
     idxSet = idxs[i]
     inputs = [frames[idx_].cuda().unsqueeze(0) for idx_ in idxSet]
     with torch.no_grad():
