@@ -78,15 +78,18 @@ Conv3d::Conv3d(std::string filterFile, Dims5 dims_in,
     cudaMalloc(&dev_filter, filter_weights.count * sizeof(float));
     cudaMemcpy(dev_filter, filter_weights.arr, filter_weights.count * sizeof(float), cudaMemcpyHostToDevice);
     delete[] filter_weights.arr;
+    // dims5
+    cudaMalloc(&dev_output, dims5ToSize(dims_out) * sizeof(float));
 }
 
 void Conv3d::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, float *input,
                  cudnnTensorDescriptor_t *outputDesc, float **output, TagUnionExtraRet *extra)
 {
     // Allocate space on GPU for output tensor
-    int num_elements_out = dims_out.dims[0] * dims_out.dims[1] * dims_out.dims[2] * dims_out.dims[3] * dims_out.dims[4];
-    cudaMalloc(output, num_elements_out * sizeof(float));
-    cudaMemset(*output, 0, num_elements_out * sizeof(float));
+    // int num_elements_out = dims_out.dims[0] * dims_out.dims[1] * dims_out.dims[2] * dims_out.dims[3] * dims_out.dims[4];
+    // cudaMalloc(output, num_elements_out * sizeof(float));
+    // cudaMemset(*output, 0, num_elements_out * sizeof(float));
+    *output = dev_output;
 
     // Initialize the algorithm
     cudnnConvolutionFwdAlgoPerf_t algorithm_perf;
@@ -230,15 +233,17 @@ Conv3dBias::Conv3dBias(std::string filterFile, std::string biasFile, Dims5 dims_
         CUDNN_ACTIVATION_IDENTITY,
         CUDNN_NOT_PROPAGATE_NAN,
         zero));
+    cudaMalloc(&dev_output, dims5ToSize(dims_out) * sizeof(float));
 }
 
 void Conv3dBias::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, float *input,
                      cudnnTensorDescriptor_t *outputDesc, float **output, TagUnionExtraRet *extra)
 {
     // Allocate space on GPU for output tensor
-    int num_elements_out = dims_out.dims[0] * dims_out.dims[1] * dims_out.dims[2] * dims_out.dims[3] * dims_out.dims[4];
-    cudaMalloc(output, num_elements_out * sizeof(float));
-    cudaMemset(*output, 0, num_elements_out * sizeof(float));
+    // int num_elements_out = dims_out.dims[0] * dims_out.dims[1] * dims_out.dims[2] * dims_out.dims[3] * dims_out.dims[4];
+    // cudaMalloc(output, num_elements_out * sizeof(float));
+    // cudaMemset(*output, 0, num_elements_out * sizeof(float));
+    *output = dev_output;
 
     // Initialize the algorithm
     cudnnConvolutionFwdAlgoPerf_t algorithm_perf;

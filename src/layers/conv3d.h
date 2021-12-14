@@ -27,6 +27,7 @@ public:
         cudaFree(dev_filter);
         cudaFree(dev_workspace);
         cudaFree(dev_bias);
+        cudaFree(dev_output);
     }
 
     Dims5 getOutputDim();
@@ -57,6 +58,7 @@ private:
     float *dev_filter;
     float *dev_workspace;
     float *dev_bias;
+    float *dev_output;
 
     // Other information
     size_t dev_workspace_bytes;
@@ -92,6 +94,7 @@ public:
 
         cudaFree(dev_filter);
         cudaFree(dev_workspace);
+        cudaFree(dev_output);
     }
 
     Dims5 getOutputDim();
@@ -119,6 +122,7 @@ private:
     // GPU data
     float *dev_filter;
     float *dev_workspace;
+    float *dev_output;
 
     // Other information
     size_t dev_workspace_bytes;
