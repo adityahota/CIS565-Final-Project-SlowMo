@@ -1,6 +1,6 @@
 #include "gate.h"
 
-Gate::Gate(Dims5 poolDimsIn, std::string filterFile, std::string biasFile)
+Gate::Gate(Dims5 poolDimsIn, std::string filterFile, std::string biasFile, cudnnHandle_t h)
     : gateInputDims(poolDimsIn)
 {
     // Adaptive Average Pool 3D has output dimension 1, meaning window size is same as input size DHW
@@ -14,7 +14,7 @@ Gate::Gate(Dims5 poolDimsIn, std::string filterFile, std::string biasFile)
     Dims3 fcPadding = zeroDims3; // Always 0
     Dims3 fcStride = unitDims3;  // Always 1
     Dims3 fcDilate = unitDims3;  // Always 1
-    fcLayer = new Conv3dBias(filterFile, biasFile, fcDimsIn, fcPadding, fcStride, fcDilate);
+    fcLayer = new Conv3dBias(filterFile, biasFile, fcDimsIn, fcPadding, fcStride, fcDilate, h);
 
     // Sigmoid layer
     Dims5 tmp = fcLayer->getOutputDim();

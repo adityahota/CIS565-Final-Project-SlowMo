@@ -1,7 +1,7 @@
 #include "conv3d.h"
 
 Conv3d::Conv3d(std::string filterFile, Dims5 dims_in,
-               Dims3 padding, Dims3 stride, Dims3 dilation)
+               Dims3 padding, Dims3 stride, Dims3 dilation, cudnnHandle_t h)
 {
     // Assign all dimensional information
     this->dims_in = dims_in;
@@ -80,19 +80,8 @@ Conv3d::Conv3d(std::string filterFile, Dims5 dims_in,
     delete[] filter_weights.arr;
     // dims5
     cudaMalloc(&dev_output, dims5ToSize(dims_out) * sizeof(float));
-}
-
-void Conv3d::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, float *input,
-                 cudnnTensorDescriptor_t *outputDesc, float **output, TagUnionExtraRet *extra)
-{
-    // Allocate space on GPU for output tensor
-    // int num_elements_out = dims_out.dims[0] * dims_out.dims[1] * dims_out.dims[2] * dims_out.dims[3] * dims_out.dims[4];
-    // cudaMalloc(output, num_elements_out * sizeof(float));
-    // cudaMemset(*output, 0, num_elements_out * sizeof(float));
-    *output = dev_output;
 
     // Initialize the algorithm
-    cudnnConvolutionFwdAlgoPerf_t algorithm_perf;
     int returned_algorithms = 0;
     checkCUDNN(cudnnGetConvolutionForwardAlgorithm_v7(
         h,
@@ -114,6 +103,16 @@ void Conv3d::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, floa
         algorithm_perf.algo,
         &dev_workspace_bytes));
     cudaMalloc(&dev_workspace, dev_workspace_bytes);
+}
+
+void Conv3d::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, float *input,
+                 cudnnTensorDescriptor_t *outputDesc, float **output, TagUnionExtraRet *extra)
+{
+    // Allocate space on GPU for output tensor
+    // int num_elements_out = dims_out.dims[0] * dims_out.dims[1] * dims_out.dims[2] * dims_out.dims[3] * dims_out.dims[4];
+    // cudaMalloc(output, num_elements_out * sizeof(float));
+    // cudaMemset(*output, 0, num_elements_out * sizeof(float));
+    *output = dev_output;
 
     // Run the convolution
     checkCUDNN(cudnnConvolutionForward(
@@ -133,7 +132,7 @@ Dims5 Conv3d::getOutputDim()
 }
 
 Conv3dBias::Conv3dBias(std::string filterFile, std::string biasFile, Dims5 dims_in,
-                       Dims3 padding, Dims3 stride, Dims3 dilation)
+                       Dims3 padding, Dims3 stride, Dims3 dilation, cudnnHandle_t h)
 {
     // Assign all dimensional information
     this->dims_in = dims_in;
@@ -234,19 +233,8 @@ Conv3dBias::Conv3dBias(std::string filterFile, std::string biasFile, Dims5 dims_
         CUDNN_NOT_PROPAGATE_NAN,
         zero));
     cudaMalloc(&dev_output, dims5ToSize(dims_out) * sizeof(float));
-}
-
-void Conv3dBias::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, float *input,
-                     cudnnTensorDescriptor_t *outputDesc, float **output, TagUnionExtraRet *extra)
-{
-    // Allocate space on GPU for output tensor
-    // int num_elements_out = dims_out.dims[0] * dims_out.dims[1] * dims_out.dims[2] * dims_out.dims[3] * dims_out.dims[4];
-    // cudaMalloc(output, num_elements_out * sizeof(float));
-    // cudaMemset(*output, 0, num_elements_out * sizeof(float));
-    *output = dev_output;
 
     // Initialize the algorithm
-    cudnnConvolutionFwdAlgoPerf_t algorithm_perf;
     int returned_algorithms = 0;
     checkCUDNN(cudnnGetConvolutionForwardAlgorithm_v7(
         h,
@@ -268,6 +256,16 @@ void Conv3dBias::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, 
         algorithm_perf.algo,
         &dev_workspace_bytes));
     cudaMalloc(&dev_workspace, dev_workspace_bytes);
+}
+
+void Conv3dBias::run(cudnnHandle_t h, cudnnTensorDescriptor_t const *inputDesc, float *input,
+                     cudnnTensorDescriptor_t *outputDesc, float **output, TagUnionExtraRet *extra)
+{
+    // Allocate space on GPU for output tensor
+    // int num_elements_out = dims_out.dims[0] * dims_out.dims[1] * dims_out.dims[2] * dims_out.dims[3] * dims_out.dims[4];
+    // cudaMalloc(output, num_elements_out * sizeof(float));
+    // cudaMemset(*output, 0, num_elements_out * sizeof(float));
+    *output = dev_output;
 
     // Run the convolution
     checkCUDNN(cudnnConvolutionBiasActivationForward(

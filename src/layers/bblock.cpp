@@ -4,7 +4,7 @@ BBlock::BBlock(Dims5 blockDimsIn,
                std::string conv1_weights, Dims3 conv1_str,
                std::string conv2_weights, Dims3 conv2_str,
                std::string fg_weights, std::string fg_bias,
-               bool downsample, std::string downsample_weights, Dims3 downsample_stride)
+               bool downsample, std::string downsample_weights, Dims3 downsample_stride, cudnnHandle_t h)
 {
     // Store whether or not downsampling is required
     downsampleFlag = downsample;
@@ -15,7 +15,7 @@ BBlock::BBlock(Dims5 blockDimsIn,
     Dims3 conv1_convStride = conv1_str;
     Dims3 conv1_convDilate = unitDims3;
     conv1_conv = new Conv3d(conv1_weights, blockDimsIn,
-                            conv1_convPadding, conv1_convStride, conv1_convDilate);
+                            conv1_convPadding, conv1_convStride, conv1_convDilate, h);
 
     //      ReLU
     relu = new LReLU();
@@ -26,11 +26,11 @@ BBlock::BBlock(Dims5 blockDimsIn,
     Dims3 conv2_convStride = conv2_str;
     Dims3 conv2_convDilate = unitDims3;
     conv2_conv = new Conv3d(conv2_weights, conv1_dimsOut,
-                            conv2_convPadding, conv2_convStride, conv2_convDilate);
+                            conv2_convPadding, conv2_convStride, conv2_convDilate, h);
 
     // Gating layer (fg) is a gate
     Dims5 conv2_dimsOut = conv2_conv->getOutputDim();
-    g = new Gate(conv2_dimsOut, fg_weights, fg_bias);
+    g = new Gate(conv2_dimsOut, fg_weights, fg_bias, h);
 
     // Remember to call ReLU
 
@@ -39,7 +39,7 @@ BBlock::BBlock(Dims5 blockDimsIn,
     {
         Dims3 downsample_padding = zeroDims3;
         Dims3 downsample_dilate = unitDims3;
-        this->downsample = new Conv3d(downsample_weights, blockDimsIn, downsample_padding, downsample_stride, downsample_dilate);
+        this->downsample = new Conv3d(downsample_weights, blockDimsIn, downsample_padding, downsample_stride, downsample_dilate, h);
     }
 
     // Calculate output dimensions here

@@ -50,6 +50,9 @@ AvgPool3d::AvgPool3d(Dims5 dims_in, Dims3 win, Dims3 pad, Dims3 str)
         Conv3d_TENSOR_KERN_DIM,
         dims_out.dims,
         data_out_stride));
+
+    // Allocate space on GPU for output tensor
+    cudaMalloc(&dev_output, dims5ToSize(dims_out) * sizeof(float));
 }
 
 void AvgPool3d::run(cudnnHandle_t h,
@@ -57,10 +60,10 @@ void AvgPool3d::run(cudnnHandle_t h,
                     cudnnTensorDescriptor_t *outputDesc, float **output,
                     TagUnionExtraRet *extra)
 {
-    // Allocate space on GPU for output tensor
-    int num_elements_out = dims_out.dims[0] * dims_out.dims[1] * dims_out.dims[2] * dims_out.dims[3] * dims_out.dims[4];
-    cudaMalloc(output, num_elements_out * sizeof(float));
-    cudaMemset(*output, 0, num_elements_out * sizeof(float));
+    // int num_elements_out = dims_out.dims[0] * dims_out.dims[1] * dims_out.dims[2] * dims_out.dims[3] * dims_out.dims[4];
+    // cudaMalloc(output, num_elements_out * sizeof(float));
+    // cudaMemset(*output, 0, num_elements_out * sizeof(float));
+    *output = dev_output;
 
     // Run the pooling operation
     checkCUDNN(cudnnPoolingForward(

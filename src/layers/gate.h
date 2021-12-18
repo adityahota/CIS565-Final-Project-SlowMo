@@ -25,7 +25,7 @@ public:
              cudnnTensorDescriptor_t *outputDesc, float **output,
              TagUnionExtraRet *extra) override;
     ~Gate();
-    Gate(Dims5 poolDimsIn, std::string fcFilter, std::string fcBias);
+    Gate(Dims5 poolDimsIn, std::string fcFilter, std::string fcBias, cudnnHandle_t h);
 
     Dims5 getOutputDims();
 

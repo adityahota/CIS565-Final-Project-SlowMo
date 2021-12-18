@@ -30,6 +30,7 @@ public:
         cudnnDestroyTensorDescriptor(desc_in);
         cudnnDestroyTensorDescriptor(desc_out);
         cudnnDestroyPoolingDescriptor(desc_pool);
+        cudaFree(dev_output);
     }
 
     Dims5 getOutputDim();
@@ -48,4 +49,6 @@ private:
     Dims3 win;
     Dims3 pad;
     Dims3 str;
+
+    float *dev_output;
 };

@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
      * LAYER CREATION
      */
     // Create encoder stem
-    BStem *stem = new BStem(input_frames_dims5, "tensor_bins/module.encoder.stem.0.weight__64x3x3x7x7.bin");
+    BStem *stem = new BStem(input_frames_dims5, "tensor_bins/module.encoder.stem.0.weight__64x3x3x7x7.bin", h);
     std::cout << "Encoder output dimensions: ";
     printDims5(stem->getOutputDims());
 
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
                                        "tensor_bins/module.encoder.layer1.0.conv2.0.weight__64x64x3x3x3.bin", layer1_conv2_str,
                                        "tensor_bins/module.encoder.layer1.0.fg.attn_layer.0.weight__64x64x1x1x1.bin",
                                        "tensor_bins/module.encoder.layer1.0.fg.attn_layer.0.bias__64.bin",
-                                       false, "", mkDims3(0, 0, 0));
+                                       false, "", mkDims3(0, 0, 0), h);
     std::cout << "Layer 1 block 0 output dimensions: ";
     printDims5(layer1_block0->getOutputDims());
 
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
                                        "tensor_bins/module.encoder.layer1.1.conv2.0.weight__64x64x3x3x3.bin", layer1_conv2_str,
                                        "tensor_bins/module.encoder.layer1.1.fg.attn_layer.0.weight__64x64x1x1x1.bin",
                                        "tensor_bins/module.encoder.layer1.1.fg.attn_layer.0.bias__64.bin",
-                                       false, "", mkDims3(0, 0, 0));
+                                       false, "", mkDims3(0, 0, 0), h);
     std::cout << "Layer 1 block 1 output dimensions: ";
     printDims5(layer1_block1->getOutputDims());
 
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
                                        "tensor_bins/module.encoder.layer2.0.conv2.0.weight__128x128x3x3x3.bin", layer2_block0_conv2_str,
                                        "tensor_bins/module.encoder.layer2.0.fg.attn_layer.0.weight__128x128x1x1x1.bin",
                                        "tensor_bins/module.encoder.layer2.0.fg.attn_layer.0.bias__128.bin",
-                                       true, "tensor_bins/module.encoder.layer2.0.downsample.0.weight__128x64x1x1x1.bin", layer2_downsample_str);
+                                       true, "tensor_bins/module.encoder.layer2.0.downsample.0.weight__128x64x1x1x1.bin", layer2_downsample_str, h);
     std::cout << "Layer 2 block 0 output dimensions: ";
     printDims5(layer2_block0->getOutputDims());
 
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
                                        "tensor_bins/module.encoder.layer2.1.conv2.0.weight__128x128x3x3x3.bin", layer2_block1_conv2_str,
                                        "tensor_bins/module.encoder.layer2.1.fg.attn_layer.0.weight__128x128x1x1x1.bin",
                                        "tensor_bins/module.encoder.layer2.1.fg.attn_layer.0.bias__128.bin",
-                                       false, "", mkDims3(0, 0, 0));
+                                       false, "", mkDims3(0, 0, 0), h);
     std::cout << "Layer 2 block 1 output dimensions: ";
     printDims5(layer2_block1->getOutputDims());
 
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
                                        "tensor_bins/module.encoder.layer3.0.conv2.0.weight__256x256x3x3x3.bin", layer3_block0_conv2_str,
                                        "tensor_bins/module.encoder.layer3.0.fg.attn_layer.0.weight__256x256x1x1x1.bin",
                                        "tensor_bins/module.encoder.layer3.0.fg.attn_layer.0.bias__256.bin",
-                                       true, "tensor_bins/module.encoder.layer3.0.downsample.0.weight__256x128x1x1x1.bin", layer3_downsample_str);
+                                       true, "tensor_bins/module.encoder.layer3.0.downsample.0.weight__256x128x1x1x1.bin", layer3_downsample_str, h);
     std::cout << "Layer 3 block 0 output dimensions: ";
     printDims5(layer3_block0->getOutputDims());
 
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
                                        "tensor_bins/module.encoder.layer3.1.conv2.0.weight__256x256x3x3x3.bin", layer3_block1_conv2_str,
                                        "tensor_bins/module.encoder.layer3.1.fg.attn_layer.0.weight__256x256x1x1x1.bin",
                                        "tensor_bins/module.encoder.layer3.1.fg.attn_layer.0.bias__256.bin",
-                                       false, "", mkDims3(0, 0, 0));
+                                       false, "", mkDims3(0, 0, 0), h);
     std::cout << "Layer 3 block 1 output dimensions: ";
     printDims5(layer3_block1->getOutputDims());
 
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
                                        "tensor_bins/module.encoder.layer4.0.conv2.0.weight__512x512x3x3x3.bin", layer4_block0_conv2_str,
                                        "tensor_bins/module.encoder.layer4.0.fg.attn_layer.0.weight__512x512x1x1x1.bin",
                                        "tensor_bins/module.encoder.layer4.0.fg.attn_layer.0.bias__512.bin",
-                                       true, "tensor_bins/module.encoder.layer4.0.downsample.0.weight__512x256x1x1x1.bin", layer4_downsample_str);
+                                       true, "tensor_bins/module.encoder.layer4.0.downsample.0.weight__512x256x1x1x1.bin", layer4_downsample_str, h);
     std::cout << "Layer 4 block 0 output dimensions: ";
     printDims5(layer4_block0->getOutputDims());
 
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
                                        "tensor_bins/module.encoder.layer4.1.conv2.0.weight__512x512x3x3x3.bin", layer4_block1_conv2_str,
                                        "tensor_bins/module.encoder.layer4.1.fg.attn_layer.0.weight__512x512x1x1x1.bin",
                                        "tensor_bins/module.encoder.layer4.1.fg.attn_layer.0.bias__512.bin",
-                                       false, "", mkDims3(0, 0, 0));
+                                       false, "", mkDims3(0, 0, 0), h);
     std::cout << "Layer 4 block 1 output dimensions: ";
     printDims5(layer4_block1->getOutputDims());
 

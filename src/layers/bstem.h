@@ -34,13 +34,13 @@ public:
         //? does this set output correctly?
     }
 
-    BStem(Dims5 blockDimsIn, std::string stem_weights)
+    BStem(Dims5 blockDimsIn, std::string stem_weights, cudnnHandle_t h)
     {
         Dims3 paddingDims = mkDims3(1, 3, 3);
         Dims3 strideDims = mkDims3(1, 2, 2);
         Dims3 dilationDims = unitDims3;
 
-        l = new Conv3d(stem_weights, blockDimsIn, paddingDims, strideDims, dilationDims);
+        l = new Conv3d(stem_weights, blockDimsIn, paddingDims, strideDims, dilationDims, h);
 
         relu = new LReLU();
         reluSize = dims5ToSize(l->getOutputDim());

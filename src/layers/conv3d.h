@@ -13,7 +13,7 @@ public:
              TagUnionExtraRet *extra) override;
 
     Conv3dBias(std::string filterFile, std::string biasFile, Dims5 dims_in,
-               Dims3 padding, Dims3 stride, Dims3 dilation);
+               Dims3 padding, Dims3 stride, Dims3 dilation, cudnnHandle_t h);
 
     ~Conv3dBias()
     {
@@ -62,6 +62,8 @@ private:
 
     // Other information
     size_t dev_workspace_bytes;
+
+    cudnnConvolutionFwdAlgoPerf_t algorithm_perf;
 };
 
 class Conv3d : Runnable
@@ -83,7 +85,7 @@ public:
              TagUnionExtraRet *extra) override;
 
     Conv3d(std::string filterFile, Dims5 dims_in,
-           Dims3 padding, Dims3 stride, Dims3 dilation);
+           Dims3 padding, Dims3 stride, Dims3 dilation, cudnnHandle_t h);
 
     ~Conv3d()
     {
@@ -126,6 +128,8 @@ private:
 
     // Other information
     size_t dev_workspace_bytes;
+
+    cudnnConvolutionFwdAlgoPerf_t algorithm_perf;
 };
 
 //*************************************************************************************************
